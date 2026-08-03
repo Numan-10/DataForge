@@ -117,12 +117,24 @@ async def api_dashboard_init(current_user: CurrentUser):
     except Exception:
         pass
 
+    upload_count = db_count("uploads", {"user_id": user.id})
+    analysis_count = db_count("analyses", {"user_id": user.id})
+    query_count = db_count("chat_sessions", {"user_id": user.id})
+
+    stats = {
+        "uploads": upload_count,
+        "analyses": analysis_count,
+        "models": 0,
+        "queries": query_count,
+    }
+
     return {
         "user": {
             "name": user.name,
             "email": user.email,
             "avatar": user.avatar,
         },
+        "stats": stats,
         "recent_uploads": uploads_data,
         "recent_analyses": analyses_data,
         "alert_count": alert_count,
