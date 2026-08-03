@@ -6,6 +6,7 @@ import styles from "./dashboard.module.css";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ThemeSwitcher from "../components/ThemeSwitcher";
+import UserMenu from "../components/UserMenu";
 import Logo from "../components/Logo";
 
 // ── Validation Helpers ──
@@ -40,8 +41,6 @@ export default function DashboardPage() {
   const router = useRouter();
 
   const [activeTab, setActiveTab] = useState("overview");
-  const [currentTheme, setCurrentTheme] = useState("");
-  const [currentFont, setCurrentFont] = useState("");
   const [isCustomizerOpen, setIsCustomizerOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
@@ -348,7 +347,6 @@ export default function DashboardPage() {
     if (activeTab === "account") {
       loadAccountDatasets();
       loadEdaReports();
-      if (avatarStyles.length === 0) loadAvatarStyles();
     }
     if (activeTab === "assets" && !assetsLoading && assets.datasets.length === 0 && assets.models.length === 0 && assets.reports.length === 0) {
       loadAssets();
@@ -390,27 +388,6 @@ export default function DashboardPage() {
     const { ok, data } = await apiFetch("/assets");
     setAssetsLoading(false);
     if (ok && data) setAssets({ datasets: data.datasets || [], models: data.models || [], reports: data.reports || [] });
-  };
-  const loadAvatarStyles = async () => {
-    const STYLE_LABELS: any = {
-      'lorelei': 'Lorelei', 'avataaars': 'Avataaars', 'bottts': 'Bottts',
-      'thumbs': 'Thumbs', 'notionists': 'Notion', 'adventurer': 'Adventurer',
-      'fun-emoji': 'Emoji', 'pixel-art': 'Pixel', 'micah': 'Micah',
-      'personas': 'Personas', 'open-peeps': 'Peeps', 'shapes': 'Shapes',
-      'identicon': 'Identicon', 'rings': 'Rings', 'croodles': 'Croodles',
-    };
-    const ids = ['lorelei', 'avataaars', 'bottts', 'thumbs', 'notionists', 'adventurer', 'fun-emoji', 'pixel-art', 'micah', 'personas', 'open-peeps', 'shapes', 'identicon', 'rings', 'croodles'];
-    const seed = acct.name || "user";
-    const previews = await Promise.all(ids.map(async (id) => {
-      try {
-        const r = await apiFetch("/account/avatar/generate", {
-          method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ seed, style: id }),
-        });
-        return { id, label: STYLE_LABELS[id] || id, preview: r.ok ? r.data.data_uri : null };
-      } catch { return { id, label: STYLE_LABELS[id] || id, preview: null }; }
-    }));
-    setAvatarStyles(previews);
   };
 
   const tabs = [
@@ -479,44 +456,7 @@ export default function DashboardPage() {
         </button>
 
         {/* Profile */}
-        <div className="relative">
-          <button onClick={() => setIsProfileOpen(!isProfileOpen)} className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-lg border transition-colors" style={{ borderColor: isProfileOpen ? "var(--accent)" : "var(--border)" }}>
-            {acct.avatarDataUri ? (
-              <img src={acct.avatarDataUri} className="w-6 h-6 rounded-full object-cover" alt="" />
-            ) : user.avatar ? (
-              <img src={user.avatar} className="w-6 h-6 rounded-full" alt="" />
-            ) : (
-              <div className="w-6 h-6 rounded-full flex items-center justify-center font-bold text-[10px]" style={{ background: "var(--accent)", color: "#fff" }}>
-                {(user.name || "U")[0].toUpperCase()}
-              </div>
-            )}
-            <span className="hidden sm:block font-bold text-[11px]" style={{ color: "var(--txt)" }}>{acct.name || user.name || user.email || "User"}</span>
-            <svg className={`w-3 h-3 transition-transform ${isProfileOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ color: "var(--txt-m)" }}><path d="M6 9l6 6 6-6" /></svg>
-          </button>
-          {isProfileOpen && (
-            <>
-              <div className="fixed inset-0 z-40" onClick={() => setIsProfileOpen(false)}></div>
-              <div className="absolute right-0 mt-2 w-48 rounded-xl py-1 z-50 shadow-xl" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
-                <div className="px-4 py-3 border-b" style={{ borderColor: "var(--border)" }}>
-                  <p className="font-bold text-xs truncate" style={{ color: "var(--txt)" }}>{acct.name || user.name || "User"}</p>
-                  <p className="text-[10px] truncate mt-0.5" style={{ color: "var(--txt-m)" }}>{user.email || ""}</p>
-                </div>
-                <Link href="/" className="flex items-center gap-2 px-4 py-2 text-xs font-medium hover:opacity-80 transition-opacity" style={{ color: "var(--txt-m)", textDecoration: "none" }}>
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
-                  New Analysis
-                </Link>
-                <button onClick={() => { setIsProfileOpen(false); setActiveTab("account"); }} className="w-full flex items-center gap-2 px-4 py-2 text-xs font-medium hover:opacity-80 transition-opacity text-left" style={{ color: "var(--txt-m)", background: "none", border: "none", cursor: "pointer" }}>
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                  My Account
-                </button>
-                <a href="/api/logout" className="flex items-center gap-2 px-4 py-2 text-xs font-medium hover:opacity-80 transition-opacity" style={{ color: "#ef4444", textDecoration: "none" }}>
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-                  Sign Out
-                </a>
-              </div>
-            </>
-          )}
-        </div>
+        <UserMenu />
       </nav>
 
       {/* MAIN */}
@@ -1114,50 +1054,14 @@ export default function DashboardPage() {
                 <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "rgba(46,91,255,.1)" }}>
                   <svg className="w-5 h-5" style={{ color: "var(--accent)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                 </div>
-                <div><p className="font-bold text-sm" style={{ color: "var(--txt)" }}>My Account</p><p className={`${styles.sl} mt-0.5`}>Edit your profile name and avatar style</p></div>
+                <div><p className="font-bold text-sm" style={{ color: "var(--txt)" }}>My Account</p><p className={`${styles.sl} mt-0.5`}>Edit your profile name</p></div>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-start gap-6">
-                <div className="flex flex-col items-center gap-3 flex-shrink-0">
-                  <div className="w-24 h-24 rounded-2xl overflow-hidden flex items-center justify-center relative" style={{ border: "2px solid var(--border)", background: "var(--surface)" }}>
-                    {acct.avatarDataUri ? (
-                      <img src={acct.avatarDataUri} className="w-full h-full object-cover" alt="Avatar" />
-                    ) : avatarGenerating ? (
-                      <div className="w-full h-full flex items-center justify-center" style={{ background: "var(--surface)" }}>
-                        <svg className="w-6 h-6 animate-spin" style={{ color: "var(--accent)" }} fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
-                      </div>
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-3xl font-black" style={{ background: "var(--accent)", color: "#fff" }}>{(acct.name || "U")[0].toUpperCase()}</div>
-                    )}
-                  </div>
-                  <button onClick={rerollAvatar} disabled={avatarGenerating} className="text-[10px] font-bold uppercase tracking-widest flex items-center gap-1 transition-opacity hover:opacity-70" style={{ color: "var(--accent)", background: "none", border: "none", cursor: "pointer", padding: 0 }}>
-                    <svg className={`w-3 h-3 ${avatarGenerating ? "animate-spin" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-                    Re-roll
-                  </button>
-                  <p className="text-[9px] font-bold uppercase tracking-widest" style={{ color: "var(--txt-m)" }}>Avatar Preview</p>
-                </div>
-
+              <div className="flex flex-1 flex-col sm:flex-row items-start gap-6">
                 <div className="flex-1 space-y-5 w-full">
                   <div className="space-y-1.5">
                     <label className={styles.sl}>Display Name</label>
-                    <input value={acct.name} onChange={(e) => setAcct((prev: any) => ({ ...prev, name: e.target.value }))} onBlur={generateAvatar} type="text" placeholder="Your name" className="w-full px-3 py-2.5 rounded-lg text-sm outline-none transition-all" style={{ background: "var(--surface)", border: "1px solid var(--border)", color: "var(--txt)" }} />
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <label className={styles.sl}>Avatar Style</label>
-                      <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--accent)" }}>{acct.avatarStyle}</span>
-                    </div>
-                    <div className="grid grid-cols-5 sm:grid-cols-8 gap-1.5">
-                      {avatarStyles.map((s) => (
-                        <button key={s.id} onClick={() => selectStyle(s.id)} className={`flex flex-col items-center gap-1 p-1.5 rounded-xl border transition-all ${acct.avatarStyle === s.id ? "border-[var(--accent)] bg-[rgba(46,91,255,0.1)]" : "border-transparent hover:border-[var(--border)]"}`} title={s.label}>
-                          <div className="w-8 h-8 rounded-lg overflow-hidden flex-shrink-0" style={{ background: "var(--surface)" }}>
-                            {s.preview ? <img src={s.preview} className="w-full h-full object-cover" alt="" /> : <div className="w-full h-full flex items-center justify-center text-[8px] font-bold" style={{ color: "var(--txt-m)" }}>{s.label[0]}</div>}
-                          </div>
-                          <span className="text-[7px] font-bold truncate w-full text-center" style={{ color: "var(--txt-m)" }}>{s.label}</span>
-                        </button>
-                      ))}
-                    </div>
+                    <input value={acct.name} onChange={(e) => setAcct((prev: any) => ({ ...prev, name: e.target.value }))} type="text" placeholder="Your name" className="w-full px-3 py-2.5 rounded-lg text-sm outline-none transition-all" style={{ background: "var(--surface)", border: "1px solid var(--border)", color: "var(--txt)" }} />
                   </div>
 
                   <div className="flex items-center gap-3">

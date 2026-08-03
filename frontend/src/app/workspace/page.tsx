@@ -13,6 +13,7 @@ import { DashboardTab } from "./components/DashboardTab";
 import ThemeSwitcher from "../components/ThemeSwitcher";
 import { useAuth } from "@/lib/auth";
 import Logo from "../components/Logo";
+import UserMenu from "../components/UserMenu";
 import ErrorState from "../components/ErrorState";
 import { Table, Wand2, LayoutDashboard, Lightbulb, MessageSquare, FileText, Bot } from 'lucide-react';
 
@@ -25,9 +26,6 @@ function WorkspaceContent() {
     apiError
   } = useWorkspace();
   const { user } = useAuth();
-  
-  const [uOpen, setUOpen] = useState(false);
-  const [moreOpen, setMoreOpen] = useState(false);
 
   const tabs = [
     { id: 'preview',   label: 'Preview',   icon: <Table size={14} /> },
@@ -109,33 +107,7 @@ function WorkspaceContent() {
 
         <div className="relative ml-2 shrink-0 flex items-center gap-1">
           <ThemeSwitcher />
-          {user ? (
-            <>
-              <button onClick={() => setUOpen(!uOpen)} className="flex items-center gap-2 pl-2 pr-2 py-1 rounded-lg border" style={{ borderColor: uOpen ? "var(--accent)" : "var(--border)", background: "transparent" }}>
-                  {user.avatar ? (
-                      <img src={user.avatar} className="w-6 h-6 rounded-full object-cover shrink-0" alt="" />
-                  ) : (
-                      <div className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-black shrink-0" style={{ background: "var(--accent)", color: "#fff" }}>
-                        {(user.name || 'U')[0].toUpperCase()}
-                      </div>
-                  )}
-                  <span className="hidden sm:block font-bold text-[11px] max-w-[80px] truncate" style={{ color: "var(--txt)" }}>{user.name || user.email || 'User'}</span>
-                  <svg className={`w-3 h-3 shrink-0 transition-transform ${uOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ color: "var(--txt-m)" }}><path d="M6 9l6 6 6-6"/></svg>
-              </button>
-              {uOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-48 rounded-xl shadow-2xl py-1 overflow-hidden" style={{ background: "var(--surface)", border: "1px solid var(--border)", zIndex: 9999 }}>
-                      <div className="px-4 py-3 border-b" style={{ borderColor: "var(--border)" }}>
-                          <p className="font-bold text-xs truncate" style={{ color: "var(--txt)" }}>{user.name || 'User'}</p>
-                          <p className="text-[10px] truncate mt-0.5" style={{ color: "var(--txt-m)" }}>{user.email || ''}</p>
-                      </div>
-                      <a href="/dashboard" className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-medium hover:opacity-80" style={{ color: "var(--txt-m)", textDecoration: "none" }}>My Account</a>
-                      <a href="/api/logout" className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-medium hover:opacity-80" style={{ color: "#ef4444", textDecoration: "none" }}>Sign Out</a>
-                  </div>
-              )}
-            </>
-          ) : (
-              <a href="/login" className="px-3 py-1.5 rounded-lg text-[11px] font-bold border" style={{ borderColor: "var(--border)", color: "var(--txt-m)", textDecoration: "none" }}>Sign In</a>
-          )}
+          <UserMenu />
         </div>
       </nav>
 
