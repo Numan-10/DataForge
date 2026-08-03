@@ -1,20 +1,40 @@
 "use client";
 
-import React from "react";
+import React, { useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 
 export default function ProcessTimeline() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start 85%", "end 45%"] // Starts filling when container enters 85% of screen, finishes when it reaches 45%
+  });
+  
+  const widthProgress = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
+  const heightProgress = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
+
   return (
     <div className="max-w-6xl mx-auto px-5 md:px-8 w-full mt-24 mb-10 pb-6 text-center md:text-left">
       <p className="text-[11px] font-bold uppercase tracking-[0.2em] mb-12 md:mb-20" style={{ color: "var(--txt-m)" }}>
         What happens after you upload
       </p>
 
-      <div className="relative flex flex-col md:flex-row items-center justify-between w-full px-2 gap-y-12 md:gap-y-0">
+      <div ref={containerRef} className="relative flex flex-col md:flex-row items-center justify-between w-full px-2 gap-y-12 md:gap-y-0">
         {/* Background line */}
         <div className="absolute top-0 md:top-[27px] left-1/2 md:left-0 -translate-x-1/2 md:translate-x-0 w-[2px] md:w-full h-full md:h-[4px] rounded-full" style={{ background: "var(--border)", zIndex: 0 }}></div>
 
-        {/* Active line gradient */}
-        <div className="absolute top-0 md:top-[27px] left-1/2 md:left-0 -translate-x-1/2 md:translate-x-0 w-[2px] md:w-[45%] h-[45%] md:h-[4px] rounded-full" style={{ zIndex: 1, background: "var(--accent)", boxShadow: "0 0 10px var(--glow)" }}></div>
+        {/* Active line gradient (Mobile) */}
+        <motion.div 
+          className="md:hidden absolute top-0 left-1/2 -translate-x-1/2 w-[2px] rounded-full" 
+          style={{ zIndex: 1, background: "var(--accent)", boxShadow: "0 0 10px var(--glow)", height: heightProgress }}
+        />
+        
+        {/* Active line gradient (Desktop) */}
+        <motion.div 
+          className="hidden md:block absolute top-[27px] left-0 h-[4px] rounded-full" 
+          style={{ zIndex: 1, background: "var(--accent)", boxShadow: "0 0 10px var(--glow)", width: widthProgress }}
+        />
 
         {/* Step 1 - Ingest (done) */}
         <div className="relative z-10 flex flex-col items-center group cursor-default w-full md:w-auto">
