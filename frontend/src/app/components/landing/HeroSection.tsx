@@ -237,7 +237,7 @@ export default function HeroSection({ onLoginRequired }: HeroSectionProps) {
                 </div>
 
                 {profile && (
-                  <div className="grid grid-cols-4 gap-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     <div className="stat-box"><p className="text-[8px] font-bold uppercase tracking-widest" style={{ color: "var(--txt-m)" }}>Rows</p><p className="text-lg font-black tracking-tighter mt-0.5" style={{ color: "var(--txt)" }}>{profile.rows?.toLocaleString()}</p></div>
                     <div className="stat-box"><p className="text-[8px] font-bold uppercase tracking-widest" style={{ color: "var(--txt-m)" }}>Cols</p><p className="text-lg font-black tracking-tighter mt-0.5" style={{ color: "var(--txt)" }}>{profile.cols}</p></div>
                     <div className="stat-box"><p className="text-[8px] font-bold uppercase tracking-widest" style={{ color: "var(--txt-m)" }}>Numeric</p><p className="text-lg font-black tracking-tighter mt-0.5" style={{ color: "var(--txt)" }}>{profile.numeric}</p></div>

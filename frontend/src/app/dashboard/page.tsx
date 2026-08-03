@@ -382,7 +382,7 @@ export default function DashboardPage() {
       <div className={styles.noise}></div>
 
       {/* TOASTS */}
-      <div className="fixed bottom-6 right-6 z-[100] space-y-2 pointer-events-none" style={{ maxWidth: "380px" }}>
+      <div className="fixed bottom-4 left-4 right-4 md:left-auto md:bottom-6 md:right-6 z-[100] space-y-2 pointer-events-none mx-auto md:mx-0" style={{ maxWidth: "380px" }}>
         {toasts.map((toast) => (
           <div
             key={toast.id}
@@ -440,7 +440,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
           <div className={styles.statCard}>
             <div className="flex items-center justify-between mb-3"><p className={styles.sl}>Uploads</p>
               <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "var(--glow)" }}>
