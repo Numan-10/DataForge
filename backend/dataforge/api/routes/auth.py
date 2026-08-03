@@ -61,7 +61,7 @@ async def login_mock(email: str = "dev@example.com", name: str = "Dev User"):
 
     jwt_token = auth_service.create_token_for_user(user)
     # Redirect to configured frontend URL
-    frontend_url = f"{settings.FRONTEND_URL}/"
+    frontend_url = f"{settings.FRONTEND_URL}/?login_success=1"
     response = RedirectResponse(url=frontend_url, status_code=302)
     _set_auth_cookie(response, jwt_token)
     log.info("Mock login success: user_id=%d email=%s", user.id, user.email)
@@ -113,7 +113,8 @@ async def auth_google_callback(request: Request):
         next_url = "/"
 
     # Redirect to configured frontend URL
-    frontend_url = f"{settings.FRONTEND_URL}{next_url}"
+    separator = "&" if "?" in next_url else "?"
+    frontend_url = f"{settings.FRONTEND_URL}{next_url}{separator}login_success=1"
     response = RedirectResponse(url=frontend_url, status_code=302)
     _set_auth_cookie(response, jwt_token)
     log.info("Google OAuth login success: user_id=%d email=%s", user.id, user.email)

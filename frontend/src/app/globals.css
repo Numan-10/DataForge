@@ -304,3 +304,11 @@ html.light .chat-session-item:hover{background:rgba(0,0,0,.025);}
 ::-webkit-scrollbar-thumb:hover {
   background: var(--txt-m);
 }
+@keyframes twinkle { 
+  0%, 100% { opacity: 0.6; transform: scale(0.98); filter: blur(1px); } 
+  50% { opacity: 1; transform: scale(1.02); filter: blur(0px); text-shadow: 0 0 15px rgba(255,255,255,0.2); } 
+}
+@keyframes pulseWidth { 
+  0%, 100% { width: 3rem; opacity: 0.3; } 
+  50% { width: 5rem; opacity: 0.7; } 
+}

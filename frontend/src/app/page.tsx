@@ -12,10 +12,14 @@ import CTABanner from "./components/landing/CTABanner";
 import Footer from "./components/landing/Footer";
 import ProcessTimeline from "./components/landing/ProcessTimeline";
 import TeamSection from "./components/landing/TeamSection";
+import SplashLoader from "./components/SplashLoader";
+import { useAuth } from "@/lib/auth";
 
 export default function Home() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [uploadAlert, setUploadAlert] = useState(false);
+  const [showSplash, setShowSplash] = useState(false);
+  const { loading } = useAuth();
 
   useEffect(() => {
     // Check query string for login modal
@@ -30,6 +34,10 @@ export default function Home() {
         window.history.replaceState({}, '', '/');
         setTimeout(() => setUploadAlert(false), 5000);
       }
+      if (params.get('login_success') === '1') {
+        setShowSplash(true);
+        window.history.replaceState({}, '', '/');
+      }
     }
   }, []);
 
@@ -37,6 +45,8 @@ export default function Home() {
     <>
       <div className="noise"></div>
       <div className="mesh"></div>
+
+      {showSplash && <SplashLoader isLoading={loading} onComplete={() => setShowSplash(false)} />}
 
       {showLoginModal && (
         <LoginModal onClose={() => setShowLoginModal(false)} />
