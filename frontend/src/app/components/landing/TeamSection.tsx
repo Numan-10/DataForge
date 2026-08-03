@@ -12,6 +12,7 @@ const TEAM_MEMBERS = [
     email: "mailto:9256fa@gmail.com",
     portfolio: "https://portfolio-seven-silk-82.vercel.app",
     github: "",
+    image: "https://ui-avatars.com/api/?name=Mohammad+Numan&background=2E5BFF&color=fff&size=256",
   },
   {
     name: "Mohammad Usman",
@@ -20,6 +21,7 @@ const TEAM_MEMBERS = [
     linkedin: "https://www.linkedin.com/in/mohammad-usman-dar-264a6135b",
     portfolio: "",
     github: "https://github.com/MohammadUsman00",
+    image: "https://github.com/MohammadUsman00.png",
   },
   {
     name: "Mubashir Shabir",
@@ -28,6 +30,7 @@ const TEAM_MEMBERS = [
     linkedin: "https://www.linkedin.com/in/mubashir-shabir-9704652bb/",
     portfolio: "",
     github: "https://github.com/Mubashir-546",
+    image: "https://github.com/Mubashir-546.png",
   },
   {
     name: "Faheem Ahmad Bhat",
@@ -36,6 +39,7 @@ const TEAM_MEMBERS = [
     linkedin: "#",
     portfolio: "#",
     github: "",
+    image: "https://ui-avatars.com/api/?name=Faheem+Ahmad+Bhat&background=FF4F33&color=fff&size=256",
   },
 ];
 
@@ -94,13 +98,17 @@ export default function TeamSection() {
               {/* Avatar */}
               <div className="relative mb-6">
                 <div
-                  className="w-24 h-24 rounded-full flex items-center justify-center relative z-10"
+                  className="w-24 h-24 rounded-full overflow-hidden flex items-center justify-center relative z-10"
                   style={{
                     background: "rgba(255,255,255,0.03)",
                     border: "1px solid rgba(255,255,255,0.1)",
                   }}
                 >
-                  <User className="w-10 h-10" style={{ color: "var(--txt-m)" }} />
+                  {member.image ? (
+                    <img src={member.image} alt={member.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="w-10 h-10" style={{ color: "var(--txt-m)" }} />
+                  )}
                 </div>
                 {/* Avatar Glow Ring */}
                 <div
