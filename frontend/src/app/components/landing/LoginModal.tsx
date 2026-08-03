@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import Logo from "./Logo";
+import Logo from "../Logo";
 
 interface LoginModalProps {
   onClose: () => void;
