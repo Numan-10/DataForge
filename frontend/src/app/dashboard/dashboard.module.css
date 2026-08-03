@@ -36,9 +36,9 @@
 @keyframes slideInFeed { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
 .feedItem { animation:slideInFeed .3s ease; }
 
-.toast { position:fixed;bottom:1.5rem;right:1.5rem;z-index:1000;min-width:280px;max-width:380px;padding:1rem 1.25rem;border-radius:1rem;border:1px solid var(--border);backdrop-filter:blur(16px);display:flex;align-items:flex-start;gap:.75rem;box-shadow:0 8px 32px rgba(0,0,0,.4); }
-@keyframes toastIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
-@keyframes toastOut { to{opacity:0;transform:translateY(12px)} }
+.toast { position:relative;z-index:1000;min-width:280px;max-width:380px;padding:1rem 1.25rem;border-radius:1rem;border:1px solid var(--border);backdrop-filter:blur(16px);display:flex;align-items:flex-start;gap:.75rem;box-shadow:0 8px 32px rgba(0,0,0,.4); }
+@keyframes toastIn { from{opacity:0;transform:translateY(-12px)} to{opacity:1;transform:translateY(0)} }
+@keyframes toastOut { to{opacity:0;transform:translateY(-12px)} }
 .toastEnter { animation:toastIn .25s ease; }
 .toastLeave { animation:toastOut .25s ease forwards; }
 

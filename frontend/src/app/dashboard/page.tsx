@@ -382,7 +382,7 @@ export default function DashboardPage() {
       <div className={styles.noise}></div>
 
       {/* TOASTS */}
-      <div className="fixed bottom-4 left-4 right-4 md:left-auto md:bottom-6 md:right-6 z-[100] space-y-2 pointer-events-none mx-auto md:mx-0" style={{ maxWidth: "380px" }}>
+      <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[9999] space-y-2 pointer-events-none w-[90%] md:w-auto flex flex-col items-center" style={{ maxWidth: "380px" }}>
         {toasts.map((toast) => (
           <div
             key={toast.id}
