@@ -34,7 +34,7 @@ def _set_auth_cookie(response: Response, token: str):
 # ── Google OAuth ──────────────────────────────────────────────────────────────
 
 @router.get("/login/google", summary="Initiate Google OAuth flow")
-async def login_google(request: Request, next: str = "/dashboard"):
+async def login_google(request: Request, next: str = "/"):
     if not settings.GOOGLE_AUTH_ENABLED:
         return RedirectResponse(url="/?login=1")
 
@@ -61,7 +61,7 @@ async def login_mock(email: str = "dev@example.com", name: str = "Dev User"):
 
     jwt_token = auth_service.create_token_for_user(user)
     # Redirect to configured frontend URL
-    frontend_url = f"{settings.FRONTEND_URL}/dashboard"
+    frontend_url = f"{settings.FRONTEND_URL}/"
     response = RedirectResponse(url=frontend_url, status_code=302)
     _set_auth_cookie(response, jwt_token)
     log.info("Mock login success: user_id=%d email=%s", user.id, user.email)
