@@ -389,13 +389,13 @@ export default function DashboardPage() {
               borderColor: toast.type === "alert" ? "rgba(239,68,68,.3)" : toast.type === "report" ? "rgba(20,184,166,.3)" : "var(--border)",
             }}
           >
-            <div className="text-lg flex-shrink-0">{toast.icon}</div>
-            <div className="flex-1 min-w-0">
-              <p className="font-bold text-xs" style={{ color: "var(--txt)" }}>{toast.title}</p>
-              <p className="text-[11px] mt-0.5 truncate" style={{ color: "var(--txt-m)" }}>{toast.body}</p>
-            </div>
-            <button onClick={() => dismissToast(toast.id)} className="flex-shrink-0 opacity-50 hover:opacity-100 transition-opacity" style={{ color: "var(--txt-m)" }}>
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2"><line x1="1" y1="1" x2="11" y2="11" /><line x1="11" y1="1" x2="1" y2="11" /></svg>
+            <div className="text-base flex-shrink-0 leading-none">{toast.icon}</div>
+            <p className="text-xs font-medium truncate flex-1 min-w-0" style={{ color: "var(--txt)" }}>
+              <span className="font-bold mr-1.5">{toast.title}</span> 
+              <span className="opacity-70">{toast.body}</span>
+            </p>
+            <button onClick={() => dismissToast(toast.id)} className="flex-shrink-0 ml-1 p-0.5 opacity-50 hover:opacity-100 transition-opacity" style={{ color: "var(--txt-m)" }}>
+              <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="1" y1="1" x2="11" y2="11" /><line x1="11" y1="1" x2="1" y2="11" /></svg>
             </button>
           </div>
         ))}

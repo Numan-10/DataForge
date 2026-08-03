@@ -36,7 +36,7 @@
 @keyframes slideInFeed { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
 .feedItem { animation:slideInFeed .3s ease; }
 
-.toast { position:relative;z-index:1000;min-width:280px;max-width:380px;padding:1rem 1.25rem;border-radius:1rem;border:1px solid var(--border);backdrop-filter:blur(16px);display:flex;align-items:flex-start;gap:.75rem;box-shadow:0 8px 32px rgba(0,0,0,.4); }
+.toast { position:relative;z-index:1000;width:max-content;max-width:90vw;padding:.5rem 1rem;border-radius:999px;border:1px solid var(--border);backdrop-filter:blur(16px);display:flex;align-items:center;gap:.5rem;box-shadow:0 8px 32px rgba(0,0,0,.4); }
 @keyframes toastIn { from{opacity:0;transform:translateY(-12px)} to{opacity:1;transform:translateY(0)} }
 @keyframes toastOut { to{opacity:0;transform:translateY(-12px)} }
 .toastEnter { animation:toastIn .25s ease; }
