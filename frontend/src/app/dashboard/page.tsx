@@ -363,10 +363,7 @@ export default function DashboardPage() {
     if (ok && data) setAssets({ datasets: data.datasets || [], models: data.models || [], reports: data.reports || [] });
   };
 
-  const tabs = [
-    { id: "overview", label: "Overview" },
-    { id: "assets", label: "Assets" },
-  ];
+  
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center text-white">Loading Dashboard...</div>;
@@ -475,14 +472,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="flex items-center gap-1 p-1 rounded-xl" style={{ background: "var(--card)", border: "1px solid var(--border)" }}>
-          {tabs.map((tab) => (
-            <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`${styles.tabBtn} ${activeTab === tab.id ? styles.active : ""} flex items-center gap-1.5`}>
-              <span>{tab.label}</span>
-            </button>
-          ))}
-        </div>
+
 
         {/* OVERVIEW TAB */}
         {activeTab === "overview" && (
@@ -562,195 +552,6 @@ export default function DashboardPage() {
                   </div>
                 )}
               </div>
-            </div>
-          </div>
-        )}
-
-        {/* ASSETS TAB */}
-        {activeTab === "assets" && (
-          <div className="space-y-6">
-            <div className={`flex items-center justify-between px-5 py-4 ${styles.gc} rounded-2xl`}>
-              <div><p className="font-bold text-sm" style={{ color: "var(--txt)" }}>My Assets</p><p className={`${styles.sl} mt-0.5`}>Manage datasets, models, and reports</p></div>
-              <button onClick={loadAssets} disabled={assetsLoading} className={styles.btnS}>
-                <svg className={`w-4 h-4 ${assetsLoading ? "animate-spin" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-                {assetsLoading ? "Refreshing..." : "Refresh"}
-              </button>
-            </div>
-
-            {/* Datasets */}
-            <div className={`${styles.gc} rounded-2xl overflow-hidden`}>
-              <div className="px-5 py-4 border-b flex items-center justify-between" style={{ borderColor: "var(--border)" }}>
-                <p className="font-bold text-sm" style={{ color: "var(--txt)" }}>Datasets</p>
-                <span className={styles.badge} style={{ background: "rgba(16,185,129,.1)", color: "#10b981", border: "1px solid rgba(16,185,129,.25)" }}>{assets.datasets.length} total</span>
-              </div>
-              {assets.datasets.length > 0 ? (
-                <table className={styles.dt}>
-                  <thead><tr><th>Name</th><th>Rows</th><th>Cols</th><th>Missing</th><th>Uploaded</th><th>Actions</th></tr></thead>
-                  <tbody>
-                    {assets.datasets.map((d: any) => (
-                      <tr key={d.id}>
-                        <td>
-                          {!assetsRenaming[d.id] ? (
-                            <div className="flex items-center gap-2">
-                              <div className="w-6 h-6 rounded flex items-center justify-center text-[8px] font-black flex-shrink-0" style={{ background: "var(--accent)", color: "#fff" }}>
-                                {d.source_type === "sheets" ? "GS" : d.filename.match(/\.xlsx?$/i) ? "XLS" : "CSV"}
-                              </div>
-                              <span className="font-medium truncate" style={{ color: "var(--txt)", maxWidth: "200px" }}>{d.label || d.filename}</span>
-                            </div>
-                          ) : (
-                            <input
-                              value={assetsEditName[d.id] || ""}
-                              onChange={(e) => setAssetsEditName((prev: any) => ({ ...prev, [d.id]: e.target.value }))}
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter") commitRename("dataset", d);
-                                if (e.key === "Escape") setAssetsRenaming((prev: any) => ({ ...prev, [d.id]: false }));
-                              }}
-                              className="px-2 py-1 rounded-lg text-xs outline-none w-48"
-                              style={{ background: "var(--surface)", border: "1px solid var(--accent)", color: "var(--txt)" }}
-                              autoFocus
-                            />
-                          )}
-                        </td>
-                        <td className="font-mono">{d.rows.toLocaleString()}</td>
-                        <td className="font-mono">{d.cols}</td>
-                        <td className="font-mono" style={{ color: d.missing_pct > 10 ? "#ef4444" : d.missing_pct > 2 ? "#fbbf24" : "#10b981" }}>{d.missing_pct}%</td>
-                        <td style={{ color: "var(--txt-m)" }}>{timeAgo(d.uploaded_at)}</td>
-                        <td>
-                          <div className="flex items-center gap-1.5">
-                            {!assetsRenaming[d.id] ? (
-                              <button onClick={() => startRename("dataset", d)} className={styles.badge} style={{ background: "rgba(46,91,255,.08)", color: "var(--accent)", border: "1px solid rgba(46,91,255,.2)" }}>Rename</button>
-                            ) : (
-                              <button onClick={() => commitRename("dataset", d)} className={styles.badge} style={{ background: "rgba(16,185,129,.1)", color: "#10b981", border: "1px solid rgba(16,185,129,.25)" }}>Save</button>
-                            )}
-                            <button onClick={() => resumeProject(d.id)} disabled={restoringId === d.id} className={styles.badge} style={{ background: "rgba(255,255,255,.04)", color: "var(--txt-m)", border: "1px solid var(--border)", cursor: "pointer" }}>
-                              {restoringId === d.id ? "Opening..." : "Open"}
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <p className="text-xs font-bold mb-1" style={{ color: "var(--txt)" }}>No datasets</p>
-                  <Link href="/" className={`${styles.btnP} text-xs mt-2`}>Upload CSV</Link>
-                </div>
-              )}
-            </div>
-
-            {/* Models */}
-            <div className={`${styles.gc} rounded-2xl overflow-hidden`}>
-              <div className="px-5 py-4 border-b flex items-center justify-between" style={{ borderColor: "var(--border)" }}>
-                <p className="font-bold text-sm" style={{ color: "var(--txt)" }}>AutoML Models</p>
-                <span className={styles.badge} style={{ background: "rgba(139,92,246,.1)", color: "#a78bfa", border: "1px solid rgba(139,92,246,.25)" }}>{assets.models.length} total</span>
-              </div>
-              {assets.models.length > 0 ? (
-                <table className={styles.dt}>
-                  <thead><tr><th>Model Name</th><th>Type</th><th>Trained On</th><th>Actions</th></tr></thead>
-                  <tbody>
-                    {assets.models.map((m: any) => (
-                      <tr key={m.id}>
-                        <td>
-                          {!assetsRenaming["m_" + m.id] ? (
-                            <div className="flex items-center gap-2">
-                              <div className="w-6 h-6 rounded flex items-center justify-center text-[8px] font-black flex-shrink-0" style={{ background: "rgba(139,92,246,.2)", color: "#a78bfa" }}>AI</div>
-                              <span className="font-medium truncate" style={{ color: "var(--txt)", maxWidth: "200px" }}>{m.label || m.model_name || "Model"}</span>
-                            </div>
-                          ) : (
-                            <input
-                              value={assetsEditName["m_" + m.id] || ""}
-                              onChange={(e) => setAssetsEditName((prev: any) => ({ ...prev, ["m_" + m.id]: e.target.value }))}
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter") commitRename("model", m);
-                                if (e.key === "Escape") setAssetsRenaming((prev: any) => ({ ...prev, ["m_" + m.id]: false }));
-                              }}
-                              className="px-2 py-1 rounded-lg text-xs outline-none w-48"
-                              style={{ background: "var(--surface)", border: "1px solid var(--accent)", color: "var(--txt)" }}
-                              autoFocus
-                            />
-                          )}
-                        </td>
-                        <td><span className={styles.badge} style={{ background: "rgba(139,92,246,.08)", color: "#a78bfa", border: "1px solid rgba(139,92,246,.2)" }}>{m.model_type}</span></td>
-                        <td style={{ color: "var(--txt-m)" }}>{timeAgo(m.created_at)}</td>
-                        <td>
-                          <div className="flex items-center gap-1.5">
-                            {!assetsRenaming["m_" + m.id] ? (
-                              <button onClick={() => startRename("model", m)} className={styles.badge} style={{ background: "rgba(46,91,255,.08)", color: "var(--accent)", border: "1px solid rgba(46,91,255,.2)" }}>Rename</button>
-                            ) : (
-                              <button onClick={() => commitRename("model", m)} className={styles.badge} style={{ background: "rgba(16,185,129,.1)", color: "#10b981", border: "1px solid rgba(16,185,129,.25)" }}>Save</button>
-                            )}
-                            <button onClick={() => resumeProject(m.upload_id, "#automl")} disabled={restoringId === m.upload_id} className={styles.badge} style={{ background: "rgba(255,255,255,.04)", color: "var(--txt-m)", border: "1px solid var(--border)", cursor: "pointer" }}>
-                              {restoringId === m.upload_id ? "Opening..." : "View"}
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <p className="text-xs font-bold mb-1" style={{ color: "var(--txt)" }}>No models trained</p>
-                </div>
-              )}
-            </div>
-
-            {/* Reports */}
-            <div className={`${styles.gc} rounded-2xl overflow-hidden`}>
-              <div className="px-5 py-4 border-b flex items-center justify-between" style={{ borderColor: "var(--border)" }}>
-                <p className="font-bold text-sm" style={{ color: "var(--txt)" }}>EDA Reports</p>
-                <span className={styles.badge} style={{ background: "rgba(20,184,166,.1)", color: "#2dd4bf", border: "1px solid rgba(20,184,166,.25)" }}>{assets.reports.length} reports</span>
-              </div>
-              {assets.reports.length > 0 ? (
-                <table className={styles.dt}>
-                  <thead><tr><th>Name</th><th>Dataset</th><th>Generated</th><th>Actions</th></tr></thead>
-                  <tbody>
-                    {assets.reports.map((r: any) => (
-                      <tr key={r.id}>
-                        <td>
-                          {!assetsRenaming["r_" + r.id] ? (
-                            <div className="flex items-center gap-2">
-                              <div className="w-6 h-6 rounded flex items-center justify-center text-[8px] font-black flex-shrink-0" style={{ background: "rgba(20,184,166,.2)", color: "#2dd4bf" }}>EDA</div>
-                              <span className="font-medium truncate" style={{ color: "var(--txt)", maxWidth: "200px" }}>{r.label || r.filename || "EDA Report"}</span>
-                            </div>
-                          ) : (
-                            <input
-                              value={assetsEditName["r_" + r.id] || ""}
-                              onChange={(e) => setAssetsEditName((prev: any) => ({ ...prev, ["r_" + r.id]: e.target.value }))}
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter") commitRename("report", r);
-                                if (e.key === "Escape") setAssetsRenaming((prev: any) => ({ ...prev, ["r_" + r.id]: false }));
-                              }}
-                              className="px-2 py-1 rounded-lg text-xs outline-none w-48"
-                              style={{ background: "var(--surface)", border: "1px solid var(--accent)", color: "var(--txt)" }}
-                              autoFocus
-                            />
-                          )}
-                        </td>
-                        <td style={{ color: "var(--txt-m)" }}>{r.filename || "—"}</td>
-                        <td style={{ color: "var(--txt-m)" }}>{r.time_ago}</td>
-                        <td>
-                          <div className="flex items-center gap-1.5">
-                            {!assetsRenaming["r_" + r.id] ? (
-                              <button onClick={() => startRename("report", r)} className={styles.badge} style={{ background: "rgba(46,91,255,.08)", color: "var(--accent)", border: "1px solid rgba(46,91,255,.2)" }}>Rename</button>
-                            ) : (
-                              <button onClick={() => commitRename("report", r)} className={styles.badge} style={{ background: "rgba(16,185,129,.1)", color: "#10b981", border: "1px solid rgba(16,185,129,.25)" }}>Save</button>
-                            )}
-                            <button onClick={() => resumeProject(r.upload_id, "#eda")} disabled={restoringId === r.upload_id} className={styles.badge} style={{ background: "rgba(255,255,255,.04)", color: "var(--txt-m)", border: "1px solid var(--border)", cursor: "pointer" }}>
-                              {restoringId === r.upload_id ? "Opening..." : "View"}
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <p className="text-xs font-bold mb-1" style={{ color: "var(--txt)" }}>No EDA reports yet</p>
-                </div>
-              )}
             </div>
           </div>
         )}
