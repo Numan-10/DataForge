@@ -174,7 +174,6 @@ export default function DashboardPage() {
       }
       setInitData(data);
       setStats(data.stats || {});
-      setAlertCount(data.alert_count || 0);
       setReports(data.recent_reports || []);
       setPreviewReportId(data.recent_reports?.[0]?.id || null);
 
