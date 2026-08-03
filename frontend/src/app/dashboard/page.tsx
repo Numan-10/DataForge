@@ -480,9 +480,6 @@ export default function DashboardPage() {
           {tabs.map((tab) => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`${styles.tabBtn} ${activeTab === tab.id ? styles.active : ""} flex items-center gap-1.5`}>
               <span>{tab.label}</span>
-              {tab.id === "alerts" && alertCount > 0 && (
-                <span className="w-4 h-4 rounded-full text-[9px] font-black flex items-center justify-center" style={{ background: "#ef4444", color: "#fff" }}>{alertCount}</span>
-              )}
             </button>
           ))}
         </div>
