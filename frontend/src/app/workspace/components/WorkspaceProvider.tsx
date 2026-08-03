@@ -59,6 +59,12 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
         uid = urlUid;
       }
     }
+
+    if (!uid && typeof window !== "undefined") {
+      window.location.href = "/?upload_required=1";
+      return;
+    }
+
     // Initial fetch of workspace state
     const stateUrl = uid ? `/workspace/state?upload_id=${uid}` : "/workspace/state";
     apiFetch(stateUrl).then(async (res) => {
