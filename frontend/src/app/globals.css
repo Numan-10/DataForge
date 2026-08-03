@@ -290,19 +290,14 @@ html.light .chat-session-item:hover{background:rgba(0,0,0,.025);}
 }
 
 /* Custom Scrollbar */
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--txt-m);
+  display: none; /* Chrome, Safari, Opera */
+  width: 0;
+  height: 0;
 }
 @keyframes twinkle { 
   0%, 100% { opacity: 0.6; transform: scale(0.98); filter: blur(1px); } 
