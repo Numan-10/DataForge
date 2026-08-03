@@ -218,11 +218,11 @@ export default function DashboardPage() {
       const eventHandlers: { [key: string]: ((data: any) => void)[] } = {};
 
       const connectWs = () => {
-        const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-        const wsHost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" 
-          ? "127.0.0.1:5000" 
-          : `${window.location.hostname}:5000`;
-        const wsUrl = `${wsProtocol}//${wsHost}/ws`;
+        // WebSocket connects directly to the backend (Next.js can't proxy WS upgrades).
+        // In production, NEXT_PUBLIC_API_URL is e.g. https://api.yourdomain.com
+        // In local dev it defaults to http://localhost:5000
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000";
+        const wsUrl = apiUrl.replace(/^http/, "ws") + "/ws";
         
         ws = new WebSocket(wsUrl);
         

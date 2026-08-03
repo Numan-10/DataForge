@@ -37,7 +37,7 @@ export default function LoginPage() {
           to continue to your analytics dashboard
         </p>
 
-        <a href="http://localhost:5000/login/google" className={styles.googleBtn}>
+        <a href="/api/auth/login/google" className={styles.googleBtn}>
           <svg width="18" height="18" viewBox="0 0 48 48">
             <path
               fill="#EA4335"
