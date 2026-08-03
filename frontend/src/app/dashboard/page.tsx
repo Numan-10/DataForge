@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import ThemeSwitcher from "../components/ThemeSwitcher";
 import UserMenu from "../components/UserMenu";
 import Logo from "../components/Logo";
+import SplashLoader from "../components/SplashLoader";
 
 // ── Validation Helpers ──
 const V = {
@@ -47,6 +48,7 @@ export default function DashboardPage() {
   const [wsConnected, setWsConnected] = useState(false);
   const [newEventCount, setNewEventCount] = useState(0);
 
+  const [showSplash, setShowSplash] = useState(false);
   const [initData, setInitData] = useState<any>(null);
   const [stats, setStats] = useState<any>({});
   const [feedItems, setFeedItems] = useState<any[]>([]);
@@ -165,6 +167,15 @@ export default function DashboardPage() {
 
   // ── Init ──
   useEffect(() => {
+    // Check query string for splash loader
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('login_success') === '1') {
+        setShowSplash(true);
+        window.history.replaceState({}, '', '/dashboard');
+      }
+    }
+
     const init = async () => {
       const { ok, data, error } = await apiFetch("/dashboard/init");
       if (!ok) {
@@ -365,18 +376,17 @@ export default function DashboardPage() {
 
   
 
-  if (loading) {
-    return <div className="min-h-screen flex items-center justify-center text-white">Loading Dashboard...</div>;
-  }
-  if (error) {
-    return <div className="min-h-screen flex items-center justify-center text-red-500">{error}</div>;
-  }
-
   const user = initData?.user || {};
 
   return (
     <>
-      <div className={styles.noise}></div>
+      {showSplash && <SplashLoader isLoading={loading} onComplete={() => setShowSplash(false)} />}
+      
+      {loading ? null : error ? (
+        <div className="min-h-screen flex items-center justify-center text-red-500">{error}</div>
+      ) : (
+        <>
+          <div className={styles.noise}></div>
 
       {/* TOASTS */}
       <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[9999] space-y-2 pointer-events-none w-[90%] md:w-auto flex flex-col items-center" style={{ maxWidth: "380px" }}>
@@ -834,8 +844,9 @@ export default function DashboardPage() {
         )}
 
       </main>
-
-
+      
+        </>
+      )}
     </>
   );
 }
