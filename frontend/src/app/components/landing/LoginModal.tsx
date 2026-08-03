@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Logo from "./Logo";
 
 interface LoginModalProps {
   onClose: () => void;
@@ -18,11 +19,8 @@ export default function LoginModal({ onClose }: LoginModalProps) {
             <line x1="11" y1="1" x2="1" y2="11" />
           </svg>
         </button>
-        <div className="flex items-center gap-3 mb-7">
-          <div className="w-7 h-7 flex items-center justify-center rounded-sm" style={{ background: "var(--txt)" }}>
-            <div className="w-3.5 h-3.5 rotate-45" style={{ background: "var(--bg)" }}></div>
-          </div>
-          <span className="font-black text-sm tracking-widest uppercase" style={{ color: "var(--txt)" }}>DataForge</span>
+        <div className="mb-7">
+          <Logo size={28} textSize={16} />
         </div>
         <h2 className="text-xl font-black tracking-tight mb-1" style={{ color: "var(--txt)" }}>Sign in to continue</h2>
         <p className="text-sm mb-7" style={{ color: "var(--txt-m)" }}>Create an account or sign in to upload your dataset and start analysing.</p>

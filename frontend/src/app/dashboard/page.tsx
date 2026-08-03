@@ -50,9 +50,6 @@ export default function DashboardPage() {
   const [initData, setInitData] = useState<any>(null);
   const [stats, setStats] = useState<any>({});
   const [feedItems, setFeedItems] = useState<any[]>([]);
-  const [alertCount, setAlertCount] = useState(0);
-  const [alerts, setAlerts] = useState<any[]>([]);
-  const [alertsChecking, setAlertsChecking] = useState(false);
 
   const [insights, setInsights] = useState<any[]>([]);
   const [insightSummary, setInsightSummary] = useState("");
@@ -98,8 +95,6 @@ export default function DashboardPage() {
     setAssetsRenaming((prev: any) => ({ ...prev, [item.id || item.upload_id]: false }));
   };
 
-  const checkAlerts = () => {};
-  const resolveAlert = (id: string) => {};
   const rerollAvatar = () => {};
   const generateAvatar = () => {};
   const selectStyle = (id: string) => {};
@@ -206,7 +201,6 @@ export default function DashboardPage() {
       setLoading(false);
 
       // Sub-fetches
-      loadAlerts();
       loadReports();
       loadSchedules();
 
@@ -283,19 +277,6 @@ export default function DashboardPage() {
 
       socketFake.on("activity", (d) => onActivity(d));
       socketFake.on("stats_update", (d) => setStats((prev: any) => ({ ...prev, ...d })));
-      socketFake.on("alert", (d) => {
-        setAlertCount((prev) => prev + 1);
-        setAlerts((prev) => [{
-          id: Date.now(), rule: d.rule, message: d.message,
-          severity: d.severity, filename: d.filename, triggered_at: d.ts,
-        }, ...prev]);
-        pushToast({
-          type: "alert",
-          icon: d.severity === "critical" ? "🚨" : "⚠️",
-          title: `Alert: ${d.rule}`,
-          body: d.message,
-        });
-      });
       socketFake.on("report_ready", (d) => {
         setPreviewReportId(d.report_id);
         loadReports();
@@ -354,13 +335,6 @@ export default function DashboardPage() {
   }, [activeTab]);
 
   // Loaders
-  const loadAlerts = async () => {
-    const { ok, data } = await apiFetch("/alerts");
-    if (ok && Array.isArray(data)) {
-      setAlerts(data);
-      setAlertCount(data.length);
-    }
-  };
   const loadReports = async () => {
     const { ok, data } = await apiFetch("/reports");
     if (ok && Array.isArray(data)) setReports(data);
@@ -999,53 +973,6 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* ALERTS TAB */}
-        {activeTab === "alerts" && (
-          <div className="space-y-5">
-            <div className="flex items-center justify-between">
-              <div><p className="font-bold" style={{ color: "var(--txt)" }}>Data Alerts</p><p className={`${styles.sl} mt-0.5`}>Anomaly & threshold monitoring</p></div>
-              <button onClick={checkAlerts} disabled={alertsChecking} className={styles.btnP}>
-                <svg className={`w-4 h-4 ${alertsChecking ? "animate-spin" : ""}`} fill="none" viewBox="0 0 24 24">
-                  {alertsChecking ? (
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  ) : (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                  )}
-                </svg>
-                {alertsChecking ? "Checking..." : "Check Now"}
-              </button>
-            </div>
-            {alerts.length > 0 ? (
-              <div className="space-y-3">
-                {alerts.map((a) => (
-                  <div key={a.id} className={`${styles.gc} rounded-xl p-4 flex items-start gap-4`}>
-                    <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: a.severity === "critical" ? "rgba(239,68,68,.12)" : a.severity === "warning" ? "rgba(245,158,11,.12)" : "rgba(99,102,241,.12)" }}>
-                      <svg className="w-4 h-4" style={{ color: a.severity === "critical" ? "#ef4444" : a.severity === "warning" ? "#fbbf24" : "#818cf8" }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <span className={`${styles.badge} ${styles["sev" + a.severity.charAt(0).toUpperCase() + a.severity.slice(1)]}`}>{a.severity.toUpperCase()}</span>
-                        <span className="text-[10px] font-bold" style={{ color: "var(--txt)" }}>{a.rule}</span>
-                      </div>
-                      <p className="text-xs" style={{ color: "var(--txt-m)" }}>{a.message}</p>
-                      <p className="text-[10px] mt-1 opacity-60" style={{ color: "var(--txt-m)" }}>{a.filename || ""} · {timeAgo(a.triggered_at)}</p>
-                    </div>
-                    <button onClick={() => resolveAlert(a.id)} className={`${styles.btnS} text-[10px] py-1 px-2 flex-shrink-0`}>Resolve</button>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className={`flex flex-col items-center justify-center py-16 ${styles.gc} rounded-2xl text-center`}>
-                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4" style={{ background: "rgba(16,185,129,.08)" }}>
-                  <svg className="w-7 h-7" style={{ color: "#10b981" }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                </div>
-                <p className="font-bold text-sm mb-1" style={{ color: "var(--txt)" }}>All clear</p>
-                <p className="text-xs" style={{ color: "var(--txt-m)" }}>No active alerts on your datasets</p>
-              </div>
-            )}
-          </div>
-        )}
-
         {/* ACCOUNT TAB */}
         {activeTab === "account" && (
           <div className="space-y-6">
@@ -1119,19 +1046,7 @@ export default function DashboardPage() {
 
       </main>
 
-      {/* Footer */}
-      <div className="max-w-6xl mx-auto px-4 md:px-6 pb-7 mt-4">
-        <div className="flex items-center justify-between py-4 px-5 rounded-xl" style={{ background: "var(--card)", border: "1px solid var(--border)" }}>
-          <div className="flex items-center gap-3">
-            <svg className="w-4 h-4 flex-shrink-0" style={{ color: "#10b981" }} fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 4.946-3.078 9.141-7.404 10.825L10 18l-.596-.234C5.078 16.082 2 11.886 2 7.001c0-.682.057-1.35.166-2.002z" clipRule="evenodd" /></svg>
-            <div>
-              <p className="text-xs font-bold" style={{ color: "var(--txt)" }}>{user.email}</p>
-              <p className={`${styles.sl} mt-0.5`}>Member since {initData?.member_since}</p>
-            </div>
-          </div>
-          <a href="/api/logout" className="text-[10px] font-bold uppercase tracking-widest hover:opacity-70 transition-opacity" style={{ color: "#ef4444", textDecoration: "none" }}>Sign Out</a>
-        </div>
-      </div>
+
     </>
   );
 }
