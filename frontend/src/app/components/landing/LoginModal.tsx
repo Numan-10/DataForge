@@ -20,9 +20,9 @@ export default function LoginModal({ onClose }: LoginModalProps) {
           </svg>
         </button>
         <div className="mb-7">
-          <Logo size={28} textSize={16} />
+          <Logo size={42} textSize={24} />
         </div>
-        <h2 className="text-xl font-black tracking-tight mb-1" style={{ color: "var(--txt)" }}>Sign in to continue</h2>
+        <h2 className="text-2xl font-black tracking-tight mb-1" style={{ color: "var(--txt)" }}>Sign in to continue</h2>
         <p className="text-sm mb-7" style={{ color: "var(--txt-m)" }}>Create an account or sign in to upload your dataset and start analysing.</p>
         {googleEnabled ? (
           <div className="flex flex-col gap-2 w-full">

@@ -258,20 +258,6 @@ export default function HeroSection({ onLoginRequired }: HeroSectionProps) {
           </div>
         </div>
 
-        {isLoggedIn && (
-          <button onClick={() => goToWorkspace(currentUploadId)} className="mt-4 flex items-center justify-between w-full px-4 py-3 rounded-xl border transition-all group" style={{ borderColor: "var(--border)", background: "var(--surface)", textDecoration: "none" }}>
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(46,91,255,.1)" }}>
-                <svg className="w-4 h-4" style={{ color: "var(--accent)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg>
-              </div>
-              <div className="text-left">
-                <p className="text-xs font-bold" style={{ color: "var(--txt)" }}>Go to Workspace</p>
-                <p className="text-[10px]" style={{ color: "var(--txt-m)" }}>Resume a past analysis with full context</p>
-              </div>
-            </div>
-            <svg className="w-4 h-4 transition-transform group-hover:translate-x-0.5" style={{ color: "var(--txt-m)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
-          </button>
-        )}
       </div>
     </div>
   );
