@@ -162,9 +162,14 @@ def create_app() -> FastAPI:
 
     # ── Register routers ──────────────────────────────────────────────────────
     from dataforge.api.routes import (
-        auth, automl, dashboard, health, insights, pages, projects, tasks, workspace,
+        auth, automl, dashboard, health, insights, projects, tasks, workspace,
     )
-    app.include_router(pages.router)
+    
+    @app.get("/", include_in_schema=False)
+    async def root_redirect():
+        from fastapi.responses import RedirectResponse
+        return RedirectResponse(url=settings.FRONTEND_URL)
+
     app.include_router(health.router)
     app.include_router(auth.router)
 
