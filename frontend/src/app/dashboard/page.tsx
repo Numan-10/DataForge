@@ -48,7 +48,7 @@ export default function DashboardPage() {
   const [wsConnected, setWsConnected] = useState(false);
   const [newEventCount, setNewEventCount] = useState(0);
 
-  const [showSplash, setShowSplash] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
   const [initData, setInitData] = useState<any>(null);
   const [stats, setStats] = useState<any>({});
   const [feedItems, setFeedItems] = useState<any[]>([]);
@@ -167,15 +167,6 @@ export default function DashboardPage() {
 
   // ── Init ──
   useEffect(() => {
-    // Check query string for splash loader
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      if (params.get('login_success') === '1') {
-        setShowSplash(true);
-        window.history.replaceState({}, '', '/dashboard');
-      }
-    }
-
     const init = async () => {
       const { ok, data, error } = await apiFetch("/dashboard/init");
       if (!ok) {
