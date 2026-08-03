@@ -125,7 +125,8 @@ async def auth_google_callback(request: Request):
 @router.post("/api/v1/auth/logout", summary="Clear the auth cookie")
 @router.get("/logout", include_in_schema=False)  # legacy compat
 async def logout():
-    response = RedirectResponse(url="/", status_code=302)
+    from fastapi.responses import JSONResponse
+    response = JSONResponse(content={"status": "ok"})
     # Must match the same path/samesite/domain that set_cookie used
     response.delete_cookie(
         key=_COOKIE_KEY,
