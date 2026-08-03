@@ -452,8 +452,8 @@ def _pandas_fallback_report(df: pd.DataFrame) -> dict:
   <!-- Numeric describe -->
   <div class="card p-3 mt-3">
     <h5 class="mb-3">Numeric Summary</h5>
-    <div class="table-responsive">
-      <pre style="font-size:.8em;color:var(--text)">{df.describe(include='all').to_string()}</pre>
+    <div class="table-responsive" style="font-size: 0.85em;">
+      {df.describe(include='all').to_html(classes="table table-sm text-start", border=0)}
     </div>
   </div>
 
