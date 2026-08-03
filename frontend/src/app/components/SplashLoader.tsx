@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import Logo from "./Logo";
 
 interface SplashLoaderProps {
   isLoading: boolean;
@@ -10,20 +11,25 @@ interface SplashLoaderProps {
 export default function SplashLoader({ isLoading, onComplete }: SplashLoaderProps) {
   const [shouldRender, setShouldRender] = useState(true);
   const [isFadingOut, setIsFadingOut] = useState(false);
+  const mountTime = useRef(Date.now());
 
   useEffect(() => {
     if (!isLoading) {
-      // Start fade out transition
-      setIsFadingOut(true);
+      const elapsed = Date.now() - mountTime.current;
+      const delay = Math.max(0, 2000 - elapsed); // Ensure at least 2 seconds
+
+      const startFadeOut = setTimeout(() => {
+        setIsFadingOut(true);
+        
+        const removeTimeout = setTimeout(() => {
+          setShouldRender(false);
+          if (onComplete) {
+            onComplete();
+          }
+        }, 500); // 500ms fade-out transition
+      }, delay);
       
-      const timeout = setTimeout(() => {
-        setShouldRender(false);
-        if (onComplete) {
-          onComplete();
-        }
-      }, 500); // 500ms allows the CSS transition to complete smoothly
-      
-      return () => clearTimeout(timeout);
+      return () => clearTimeout(startFadeOut);
     }
   }, [isLoading, onComplete]);
 
@@ -34,26 +40,11 @@ export default function SplashLoader({ isLoading, onComplete }: SplashLoaderProp
       className={`fixed inset-0 z-[99999] flex flex-col items-center justify-center transition-opacity duration-500 ease-in-out ${isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
       style={{ background: "var(--bg)" }}
     >
-      <div className="flex flex-col items-center gap-6">
-        {/* Antigravity / DataForge Twinkling Text */}
-        <h1 
-          className="text-4xl md:text-5xl font-black tracking-tighter"
-          style={{ 
-            color: "var(--txt)",
-            animation: "twinkle 2s ease-in-out infinite"
-          }}
-        >
-          DataForge
-        </h1>
-        
-        {/* Subtle accent line underneath */}
-        <div 
-          className="w-16 h-1 rounded-full opacity-50"
-          style={{ 
-            background: "linear-gradient(90deg, transparent, var(--accent), transparent)",
-            animation: "pulseWidth 2s ease-in-out infinite"
-          }}
-        />
+      <div 
+        className="flex items-center justify-center opacity-80"
+        style={{ animation: "twinkle 2.5s ease-in-out infinite" }}
+      >
+        <Logo size={42} textSize={24} />
       </div>
     </div>
   );
