@@ -40,7 +40,7 @@ async def login_google(request: Request, next: str = "/dashboard"):
 
     from authlib.integrations.starlette_client import OAuth
     oauth = request.app.state.oauth
-    redirect_uri = str(request.url_for("auth_google_callback"))
+    redirect_uri = f"{settings.BACKEND_URL}/auth/google/callback"
     request.session["next_url"] = next if next.startswith("/") else "/"
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
@@ -87,7 +87,7 @@ async def auth_google_callback(request: Request):
             try:
                 log.info("State mismatch caught — attempting direct token exchange with code...")
                 oauth = request.app.state.oauth
-                redirect_uri = str(request.url_for("auth_google_callback"))
+                redirect_uri = f"{settings.BACKEND_URL}/auth/google/callback"
                 token = await oauth.google.fetch_token(
                     redirect_uri=redirect_uri,
                     code=code,

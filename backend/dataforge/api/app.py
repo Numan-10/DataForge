@@ -141,6 +141,10 @@ def create_app() -> FastAPI:
     # Request logging
     app.add_middleware(RequestLoggingMiddleware)
 
+    # Proxy Headers (trust X-Forwarded-Proto from Render)
+    from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
+    app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
+
     # Rate limiting (slowapi)
     try:
         from slowapi import Limiter, _rate_limit_exceeded_handler
