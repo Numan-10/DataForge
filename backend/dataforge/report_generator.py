@@ -385,13 +385,20 @@ def generate_html_report(
       -webkit-font-smoothing: antialiased;
     }}
 
-    .deck-wrapper {{
+    .deck-wrapper {
       display: flex;
       flex-direction: column;
-      align-items: center;
       gap: 40px;
       padding: 40px 20px;
-    }}
+      overflow-x: auto;
+      align-items: flex-start;
+    }
+
+    @media (min-width: 1200px) {
+      .deck-wrapper {
+        align-items: center;
+      }
+    }
 
     .slide {{
       width: 297mm;
@@ -409,6 +416,9 @@ def generate_html_report(
       box-shadow: 0 10px 35px rgba(15, 23, 42, 0.08);
       position: relative;
       overflow: hidden;
+      flex-shrink: 0;
+      max-width: 100%;
+      overflow-x: auto;
     }}
 
     /* Accent Bar Top */

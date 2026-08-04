@@ -299,7 +299,7 @@ def _category_dist_html(df: pd.DataFrame, max_cats: int = 15) -> str:
             color = "#4f46e5"
             bar_rows += (
                 f'<tr>'
-                f'<td style="font-size:.78em;white-space:nowrap;max-width:150px;'
+                f'<td style="font-size:.78em;white-space:nowrap;max-width:40%;'
                 f'overflow:hidden;text-overflow:ellipsis;padding:2px 6px">{str(label)[:30]}</td>'
                 f'<td style="padding:2px 6px">{_svg_bar(count, max_count, color, 12)}</td>'
                 f'<td style="font-size:.75em;color:#a0aec0;padding:2px 4px">{count:,} ({pct}%)</td>'
@@ -309,7 +309,9 @@ def _category_dist_html(df: pd.DataFrame, max_cats: int = 15) -> str:
         <div class="col-md-6 mb-3">
           <div class="card p-3">
             <h6 style="font-size:.85em" class="mb-2"><code>{col}</code></h6>
-            <table style="width:100%">{bar_rows}</table>
+            <div class="table-responsive">
+              <table style="width:100%; min-width:280px">{bar_rows}</table>
+            </div>
           </div>
         </div>""")
 
