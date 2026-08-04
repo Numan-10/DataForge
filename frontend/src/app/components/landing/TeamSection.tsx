@@ -12,7 +12,7 @@ const TEAM_MEMBERS = [
     email: "mailto:9256fa@gmail.com",
     portfolio: "https://portfolio-seven-silk-82.vercel.app",
     github: "",
-    image: "https://ui-avatars.com/api/?name=Mohammad+Numan&background=2E5BFF&color=fff&size=256",
+    image: "/Numan.png",
   },
   {
     name: "Mohammad Usman",
@@ -39,7 +39,7 @@ const TEAM_MEMBERS = [
     linkedin: "#",
     portfolio: "#",
     github: "",
-    image: "https://ui-avatars.com/api/?name=Faheem+Ahmad+Bhat&background=FF4F33&color=fff&size=256",
+    image: "/Faheem.png",
   },
 ];
 
