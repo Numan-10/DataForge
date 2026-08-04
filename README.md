@@ -124,7 +124,8 @@ git clone https://github.com/FaheemorFAB/DataForge_v3.git
 cd DataForge_v3-main
 
 # Set up environment variables
-cp .env.example .env
+# Create a .env file in the root directory and configure required variables 
+# (e.g., FRONTEND_URL, BACKEND_URL, FLASK_SECRET_KEY, GEMINI_API_KEY)
 ```
 
 ---
