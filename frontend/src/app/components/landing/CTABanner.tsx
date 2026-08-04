@@ -26,7 +26,7 @@ export default function CTABanner() {
       <div className="max-w-6xl mx-auto px-5 md:px-8">
         <div className="reveal px-6 py-10 md:p-14 flex flex-col md:flex-row items-center justify-between gap-8 md:gap-6 text-center md:text-left" style={{ background: "#FF4310", borderRadius: "1.25rem" }}>
           <div>
-            <h2 className="text-[28px] leading-[1.1] md:text-3xl font-black tracking-tight" style={{ color: "#fff" }}>
+            <h2 className="text-[26px] leading-[1.1] md:text-3xl font-black tracking-tight" style={{ color: "#fff" }}>
               Bring your own dataset.<br className="hidden sm:block md:hidden lg:block" /> <span className="sm:hidden md:inline lg:hidden"> </span>See it forged in minutes.
             </h2>
             <p className="text-[15px] mt-4 md:mt-3" style={{ color: "rgba(255,255,255,0.75)" }}>

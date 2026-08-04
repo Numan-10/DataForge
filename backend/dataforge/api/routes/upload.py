@@ -17,7 +17,7 @@ from fastapi.responses import JSONResponse
 from dataforge.api.config import get_settings
 from dataforge.api.deps import CurrentUser, get_job_manager_dep
 from dataforge.api.jobs.manager import JobManager
-from dataforge.api.schemas.upload import DuplicateCheckRequest
+from dataforge.api.schemas.upload import DuplicateCheckRequest, SheetsUploadRequest
 from dataforge.api.services.upload import upload_service
 from dataforge.api.utils.json import safe_jsonable
 from dataforge.db import User
@@ -94,13 +94,13 @@ async def api_check_duplicate(
 
 @router.post("/upload/sheets", summary="Load data from a public Google Sheets URL")
 async def api_upload_sheets(
+    req: SheetsUploadRequest,
     current_user: CurrentUser,
-    url: str = Form(...),
 ):
     """Fetch a public Google Sheet and load it as a DataFrame."""
     import re
 
-    match = re.search(r"/spreadsheets/d/([a-zA-Z0-9_-]+)", url)
+    match = re.search(r"/spreadsheets/d/([a-zA-Z0-9_-]+)", req.url)
     if not match:
         raise HTTPException(status_code=400, detail="Invalid Google Sheets URL")
     sheet_id = match.group(1)
@@ -115,7 +115,7 @@ async def api_upload_sheets(
         raise HTTPException(status_code=400, detail="Google Sheet is empty")
 
     filename = f"sheet_{sheet_id[:8]}.csv"
-    source_config = {"sheet_id": sheet_id, "url": url}
+    source_config = {"sheet_id": sheet_id, "url": req.url}
     result = upload_service.process_dataframe(df, filename, "sheets", current_user, source_config)
 
     return JSONResponse(content=safe_jsonable({

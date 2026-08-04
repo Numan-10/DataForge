@@ -385,20 +385,20 @@ def generate_html_report(
       -webkit-font-smoothing: antialiased;
     }}
 
-    .deck-wrapper {
+    .deck-wrapper {{
       display: flex;
       flex-direction: column;
       gap: 40px;
       padding: 40px 20px;
       overflow-x: auto;
       align-items: flex-start;
-    }
+    }}
 
-    @media (min-width: 1200px) {
-      .deck-wrapper {
+    @media (min-width: 1200px) {{
+      .deck-wrapper {{
         align-items: center;
-      }
-    }
+      }}
+    }}
 
     .slide {{
       width: 297mm;

@@ -75,7 +75,6 @@ function WorkspaceContent() {
 
         {profile && (
           <div className="flex items-center gap-2 mr-3 font-mono text-[0.6rem] min-w-0" style={{ color: "var(--txt-m)" }}>
-              <span className="font-bold shrink-0" style={{ color: "var(--txt)" }}>{profile.filename || 'dataset.csv'}</span>
               
               {cleanProfile && (
                   <span className="px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wider shrink-0" 
