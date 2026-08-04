@@ -18,7 +18,7 @@ import { useAuth } from "@/lib/auth";
 export default function Home() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [uploadAlert, setUploadAlert] = useState(false);
-  const [showSplash, setShowSplash] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
   const { loading } = useAuth();
 
   useEffect(() => {
