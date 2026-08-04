@@ -14,6 +14,7 @@ import ProcessTimeline from "./components/landing/ProcessTimeline";
 import TeamSection from "./components/landing/TeamSection";
 import SplashLoader from "./components/SplashLoader";
 import { useAuth } from "@/lib/auth";
+import { AlertTriangle } from "lucide-react";
 
 export default function Home() {
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -53,10 +54,13 @@ export default function Home() {
       )}
 
       {uploadAlert && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 w-fit max-w-[90vw] z-[9999] px-4 py-2.5 rounded-full flex items-center gap-2.5 shadow-xl backdrop-blur-md" style={{ background: "rgba(15, 10, 5, 0.9)", border: "1px solid rgba(245,158,11,0.3)", animation: "slideUp 0.3s cubic-bezier(0.23, 1, 0.32, 1)" }}>
-          <span className="text-amber-500 text-sm md:text-base leading-none">⚠️</span>
-          <p className="text-xs md:text-sm font-medium tracking-wide" style={{ color: "var(--txt)" }}>Please upload a file first to access the workspace.</p>
-          <button onClick={() => setUploadAlert(false)} className="opacity-50 hover:opacity-100 transition-opacity flex-shrink-0 ml-1 p-0.5" style={{ color: "var(--txt-m)" }}>
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 w-[320px] max-w-[90vw] z-[9999] px-4 py-3 rounded-[14px] flex items-start gap-3 shadow-xl backdrop-blur-md" style={{ background: "rgba(15, 10, 5, 0.9)", border: "1px solid rgba(245,158,11,0.3)", animation: "slideUp 0.3s cubic-bezier(0.23, 1, 0.32, 1)" }}>
+          <AlertTriangle size={18} className="text-amber-500 mt-0.5" />
+          <div className="flex-1 flex flex-col">
+            <span className="text-sm font-bold tracking-tight" style={{ color: "var(--txt)" }}>Access Denied</span>
+            <span className="text-xs opacity-80 mt-0.5 leading-snug" style={{ color: "var(--txt)" }}>Upload a dataset first.</span>
+          </div>
+          <button onClick={() => setUploadAlert(false)} className="opacity-50 hover:opacity-100 transition-opacity flex-shrink-0 mt-1 p-0.5" style={{ color: "var(--txt-m)" }}>
             <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="1" y1="1" x2="11" y2="11" /><line x1="11" y1="1" x2="1" y2="11" /></svg>
           </button>
         </div>

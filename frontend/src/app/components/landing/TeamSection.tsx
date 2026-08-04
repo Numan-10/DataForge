@@ -37,8 +37,8 @@ const TEAM_MEMBERS = [
     role: "Full-Stack Engineer | UI/UX",
     gradient: "linear-gradient(135deg, #FF4F33 0%, #FF8E53 100%)",
     linkedin: "#",
-    portfolio: "#",
-    github: "",
+    portfolio: "",
+    github: "https://github.com/FaheemorFAB",
     image: "/Faheem.png",
   },
 ];

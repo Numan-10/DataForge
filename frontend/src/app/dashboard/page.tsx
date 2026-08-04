@@ -9,6 +9,7 @@ import ThemeSwitcher from "../components/ThemeSwitcher";
 import UserMenu from "../components/UserMenu";
 import Logo from "../components/Logo";
 import SplashLoader from "../components/SplashLoader";
+import { AlertTriangle, FileText, Lightbulb, BarChart, Bot, Sparkles, MessageSquare, Zap, XCircle, Calendar, ChevronLeft, Plus } from "lucide-react";
 
 // ── Validation Helpers ──
 const V = {
@@ -146,7 +147,7 @@ export default function DashboardPage() {
     try {
       const { ok, data, error } = await apiFetch(`/restore/${uploadId}`, { method: "POST" });
       if (!ok || data?.error) {
-        pushToast({ type: "alert", icon: "⚠️", title: "Restore Failed", body: error || data?.error || "Unknown error" });
+        pushToast({ type: "alert", icon: <AlertTriangle size={16} className="text-red-500" />, title: "Restore Failed", body: error || data?.error || "Unknown error" });
         return;
       }
 
@@ -159,7 +160,7 @@ export default function DashboardPage() {
 
       router.push(`/workspace?upload_id=${encodeURIComponent(uploadId)}${hashHash}`);
     } catch (e: any) {
-      pushToast({ type: "alert", icon: "⚠️", title: "Network Error", body: e.message });
+      pushToast({ type: "alert", icon: <AlertTriangle size={16} className="text-red-500" />, title: "Network Error", body: e.message });
     } finally {
       setRestoringId(null);
     }
@@ -279,12 +280,12 @@ export default function DashboardPage() {
       socketFake.on("activity", (d) => onActivity(d));
       socketFake.on("stats_update", (d) => setStats((prev: any) => ({ ...prev, ...d })));
       socketFake.on("report_ready", (d) => {
+        pushToast({ type: "report", icon: <FileText size={16} className="text-teal-500" />, title: "Report Ready", body: `Generated for ${d.filename || "dataset"}` });
         setPreviewReportId(d.report_id);
         loadReports();
-        pushToast({ type: "report", icon: "📄", title: "Report Ready", body: `Generated for ${d.filename || "dataset"}` });
       });
       socketFake.on("insight_ready", (d) => {
-        pushToast({ type: "info", icon: "💡", title: `${d.count} Insights Ready`, body: `${d.dataset_type} · ${d.filename}` });
+        pushToast({ type: "info", icon: <Lightbulb size={16} className="text-yellow-500" />, title: `${d.count} Insights Ready`, body: `${d.dataset_type} · ${d.filename}` });
       });
     };
     init();
@@ -295,13 +296,13 @@ export default function DashboardPage() {
   }, []);
 
   const onActivity = (d: any) => {
-    const icons: any = { eda: "📊", automl: "🤖", clean: "🧹", query: "💬", insights: "💡", report: "📄" };
+    const icons: any = { eda: <BarChart size={16} className="text-purple-400" />, automl: <Bot size={16} className="text-blue-400" />, clean: <Sparkles size={16} className="text-emerald-400" />, query: <MessageSquare size={16} className="text-amber-400" />, insights: <Lightbulb size={16} className="text-indigo-400" />, report: <FileText size={16} className="text-teal-400" /> };
     const labels: any = { eda: "EDA", automl: "AutoML", clean: "Cleaning", query: "AI Query", insights: "Insights", report: "Report" };
     const item = {
       id: Date.now() + Math.random(),
       type: d.type,
       label: labels[d.type] || d.type,
-      icon: icons[d.type] || "⚡",
+      icon: icons[d.type] || <Zap size={16} className="text-indigo-400" />,
       summary: d.summary,
       filename: d.filename,
       time_ago: "just now",
@@ -321,7 +322,7 @@ export default function DashboardPage() {
 
     if (feedScrollRef.current) feedScrollRef.current.scrollTop = 0;
 
-    pushToast({ type: "info", icon: icons[d.type] || "⚡", title: `${labels[d.type] || d.type} complete`, body: d.summary || d.filename || "" });
+    pushToast({ type: "info", icon: icons[d.type] || <Zap size={16} className="text-indigo-400" />, title: `${labels[d.type] || d.type} complete`, body: d.summary || d.filename || "" });
   };
 
   // Watches for activeTab
@@ -409,7 +410,7 @@ export default function DashboardPage() {
         </Link>
         <div className="w-px h-5 flex-shrink-0" style={{ background: "var(--border)" }}></div>
         <Link href="/workspace" className={`${styles.btnP} text-[10px] py-1.5 px-2.5`}>
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+          <ChevronLeft className="w-3.5 h-3.5" />
           <span className="hidden sm:inline">Workspace</span>
         </Link>
         <div className="flex-1"></div>
@@ -630,7 +631,7 @@ export default function DashboardPage() {
                 setReportLoading(true);
                 const { ok, data, error } = await apiFetch("/reports/generate", { method: "POST" });
                 setReportLoading(false);
-                if (!ok) { pushToast({ type: "alert", icon: "❌", title: "Report failed", body: error }); return; }
+                if (!ok) { pushToast({ type: "alert", icon: <XCircle size={16} className="text-red-500" />, title: "Report failed", body: error }); return; }
                 if (data && data.report_id) { setPreviewReportId(data.report_id); loadReports(); }
               }} disabled={reportLoading} className={styles.btnP}>
                 <svg className={`w-4 h-4 ${reportLoading ? "animate-spin" : ""}`} fill="none" viewBox="0 0 24 24">
@@ -687,7 +688,7 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between">
               <div><p className="font-bold" style={{ color: "var(--txt)" }}>Report Schedules</p><p className={`${styles.sl} mt-0.5`}>Automated recurring report delivery</p></div>
               <button onClick={() => setShowNewSchedule(!showNewSchedule)} className={styles.btnP}>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
+                <Plus className="w-4 h-4" />
                 New Schedule
               </button>
             </div>
@@ -723,9 +724,9 @@ export default function DashboardPage() {
                     setSchedLoading(true);
                     const { ok, data, error } = await apiFetch("/schedules", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ cron: newSched.cron.trim(), email: newSched.email.trim() }) });
                     setSchedLoading(false);
-                    if (!ok) { pushToast({ type: "alert", icon: "❌", title: "Could not create schedule", body: error }); return; }
+                    if (!ok) { pushToast({ type: "alert", icon: <XCircle size={16} className="text-red-500" />, title: "Could not create schedule", body: error }); return; }
                     setShowNewSchedule(false); setNewSched({ cron: "0 9 * * 1", email: "" }); setSchedErrors({ cron: "", email: "" });
-                    loadSchedules(); pushToast({ type: "info", icon: "📅", title: "Schedule created", body: data.cron_human });
+                    loadSchedules(); pushToast({ type: "info", icon: <Calendar size={16} className="text-blue-500" />, title: "Schedule created", body: data.cron_human });
                   }} disabled={schedLoading} className={styles.btnP}>{schedLoading ? "Creating..." : "Create Schedule"}</button>
                   <button onClick={() => { setShowNewSchedule(false); setSchedErrors({ cron: "", email: "" }); }} className={styles.btnS}>Cancel</button>
                 </div>

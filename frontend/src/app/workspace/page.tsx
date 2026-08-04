@@ -111,13 +111,19 @@ function WorkspaceContent() {
       </nav>
 
       {/* MOBILE TABS SUB-NAV */}
-      <div className="md:hidden flex items-center overflow-x-auto no-scrollbar w-full px-2" style={{ background: "var(--nav)", borderBottom: "1px solid var(--border)", minHeight: "42px" }}>
-          {tabs.map((tab) => (
-            <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`shrink-0 flex items-center gap-1.5 px-3 py-2.5 text-[11px] font-bold border-b-2 transition-colors ${activeTab === tab.id ? 'border-[var(--accent)]' : 'border-transparent'}`} style={{ color: activeTab === tab.id ? "var(--txt)" : "var(--txt-m)" }}>
-              {tab.icon}
-              {tab.label}
-            </button>
-          ))}
+      <div className="md:hidden relative w-full" style={{ background: "var(--nav)", borderBottom: "1px solid var(--border)", minHeight: "42px" }}>
+        <div className="flex items-center overflow-x-auto no-scrollbar w-full pl-2 pr-4 relative">
+            {tabs.map((tab) => (
+              <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`shrink-0 flex items-center gap-1.5 px-3 py-2.5 text-[11px] font-bold border-b-2 transition-colors ${activeTab === tab.id ? 'border-[var(--accent)]' : 'border-transparent'}`} style={{ color: activeTab === tab.id ? "var(--txt)" : "var(--txt-m)" }}>
+                {tab.icon}
+                {tab.label}
+              </button>
+            ))}
+            {/* Space pad at the end so the last tab isn't hidden by the fade */}
+            <div className="shrink-0 w-6"></div>
+        </div>
+        {/* Scroll indicator fade */}
+        <div className="absolute right-0 top-0 bottom-0 w-12 pointer-events-none" style={{ background: "linear-gradient(to right, transparent, var(--nav))" }}></div>
       </div>
 
       <main id="main-content" className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
