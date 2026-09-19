@@ -1,45 +1,617 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, useInView, AnimatePresence } from "framer-motion";
 import Header from "../components/landing/Header";
 import Footer from "../components/landing/Footer";
 import LoginModal from "../components/landing/LoginModal";
 import TeamSection from "../components/landing/TeamSection";
+import CTABanner from "../components/landing/CTABanner";
+import Scratch from "../components/ui/Scratch";
+
 import {
-  Sparkles,
-  Database,
-  Wand2,
-  Cpu,
-  MessageSquareCode,
-  FileText,
   UploadCloud,
-  ArrowRight,
-  Clock,
-  LayoutGrid,
-  FileSpreadsheet,
-  AlertTriangle,
-  Server,
-  Key,
+  Wand2,
+  Activity,
+  MessageSquareCode,
+  Cpu,
+  FileText,
   Globe,
+  Server,
   Bot,
-  PieChart,
+  Key,
   HardDrive,
   Zap,
-  HelpCircle,
+  ArrowRight,
   CheckCircle2,
-  Compass,
-  Activity,
-  ShieldCheck,
-  LineChart,
-  Target,
-  BarChart4
+  TrendingUp,
+  AlertCircle,
 } from "lucide-react";
+
+
+/* ─── Animated counter ───────────────────────────────────────────────────── */
+
+function Counter({ to, suffix = "" }: { to: number; suffix?: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true });
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    if (!inView) return;
+    let start = 0;
+    const step = Math.ceil(to / 60);
+    const timer = setInterval(() => {
+      start += step;
+      if (start >= to) { setCount(to); clearInterval(timer); }
+      else setCount(start);
+    }, 16);
+    return () => clearInterval(timer);
+  }, [inView, to]);
+  return <span ref={ref}>{count}{suffix}</span>;
+}
+
+/* ─── Tiny spark bar ─────────────────────────────────────────────────────── */
+function SparkBar({ heights }: { heights: number[] }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true });
+  return (
+    <div ref={ref} className="flex items-end gap-0.5 h-8">
+      {heights.map((h, i) => (
+        <motion.div key={i}
+          initial={{ scaleY: 0 }}
+          animate={inView ? { scaleY: 1 } : { scaleY: 0 }}
+          transition={{ delay: i * 0.05, duration: 0.4, ease: "easeOut" }}
+          style={{ originY: 1, height: `${h}%`, background: "var(--accent)", opacity: 0.5 + h / 250 }}
+          className="w-1.5 rounded-sm flex-shrink-0"
+        />
+      ))}
+    </div>
+  );
+}
+
+/* ─── Stage visual panels ────────────────────────────────────────────────── */
+function IngestVisual() {
+  const rows = [
+    ["customer_id", "age", "income", "churn"],
+    ["C001", "34", "72000", "—"],
+    ["C002", "null", "null", "1"],
+    ["C003", "28", "55000", "0"],
+    ["C004", "null", "88000", "1"],
+    ["C005", "41", "null", "0"],
+  ];
+  return (
+    <div className="w-full flex flex-col gap-3">
+      <div className="flex items-center gap-2 mb-1">
+        <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+        <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--txt-m)" }}>
+          customer_data.csv · 5,000 rows detected
+        </span>
+      </div>
+      <div className="overflow-hidden rounded-xl border" style={{ borderColor: "var(--border)" }}>
+        <table className="w-full text-xs">
+          <thead>
+            <tr style={{ background: "var(--bg)" }}>
+              {rows[0].map((h, i) => (
+                <th key={i} className="px-3 py-2 text-left font-bold" style={{ color: "var(--accent)", borderBottom: "1px solid var(--border)" }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.slice(1).map((row, ri) => (
+              <motion.tr key={ri}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: ri * 0.12 }}
+                style={{ background: ri % 2 === 0 ? "var(--card-bg)" : "transparent" }}
+              >
+                {row.map((cell, ci) => (
+                  <td key={ci} className="px-3 py-1.5 font-mono"
+                    style={{ color: cell === "null" ? "#EF4444" : "var(--txt)", borderBottom: "1px solid var(--border)" }}>
+                    {cell === "null" ? <span className="italic opacity-70">null</span> : cell}
+                  </td>
+                ))}
+              </motion.tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="flex gap-2 mt-1">
+        {["CSV", "Excel", "Sheets"].map((f) => (
+          <span key={f} className="text-[10px] font-bold px-2.5 py-1 rounded-full border" style={{ borderColor: "var(--border)", color: "var(--txt-m)" }}>{f}</span>
+        ))}
+        <span className="text-[10px] font-bold px-2.5 py-1 rounded-full ml-auto" style={{ background: "var(--accent)", color: "#fff" }}>Parsed ✓</span>
+      </div>
+    </div>
+  );
+}
+
+function CleanVisual() {
+  const bars = [
+    { label: "Missing Values", before: 18, after: 0, color: "#EF4444" },
+    { label: "Duplicates", before: 7, after: 0, color: "#F97316" },
+    { label: "Outliers (Z>3)", before: 4, after: 0, color: "#EAB308" },
+    { label: "Type Errors", before: 9, after: 0, color: "#A855F7" },
+  ];
+  return (
+    <div className="flex flex-col gap-4 w-full">
+      <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: "var(--txt-m)" }}>
+        <span>Issue</span><span className="flex gap-6"><span style={{ color: "#EF4444" }}>Before</span><span style={{ color: "#22c55e" }}>After</span></span>
+      </div>
+      {bars.map((b, i) => (
+        <div key={i} className="flex flex-col gap-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold" style={{ color: "var(--txt)" }}>{b.label}</span>
+            <div className="flex gap-4 text-xs font-bold">
+              <span style={{ color: b.color }}>{b.before}%</span>
+              <motion.span
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.2 + 0.5 }}
+                style={{ color: "#22c55e" }}>
+                0%
+              </motion.span>
+            </div>
+          </div>
+          <div className="relative h-2 rounded-full overflow-hidden" style={{ background: "var(--border)" }}>
+            <div className="absolute inset-0 rounded-full" style={{ background: b.color, opacity: 0.25 }} />
+            <motion.div className="absolute left-0 top-0 h-full rounded-full"
+              initial={{ width: `${b.before}%` }}
+              animate={{ width: "0%" }}
+              transition={{ delay: i * 0.2 + 0.3, duration: 0.8, ease: "easeInOut" }}
+              style={{ background: b.color }}
+            />
+          </div>
+        </div>
+      ))}
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.2 }}
+        className="flex items-center gap-2 mt-2 px-4 py-2.5 rounded-xl"
+        style={{ background: "#22c55e18", border: "1px solid #22c55e40" }}>
+        <CheckCircle2 size={16} style={{ color: "#22c55e" }} />
+        <span className="text-xs font-bold" style={{ color: "#22c55e" }}>Dataset sanitized — 0 issues remaining</span>
+      </motion.div>
+    </div>
+  );
+}
+
+function AnalyzeVisual() {
+  const chartBars = [62, 48, 80, 35, 91, 57, 73, 44, 88, 66, 79, 52];
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true });
+  return (
+    <div ref={ref} className="flex flex-col gap-4 w-full">
+      <div className="flex items-center gap-3 mb-1">
+        <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--txt-m)" }}>Monthly Revenue Trend</span>
+        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full ml-auto" style={{ background: "#3B82F618", color: "#3B82F6" }}>+14.2% trend</span>
+      </div>
+      {/* Line chart area */}
+      <div className="relative h-32 w-full">
+        <svg viewBox="0 0 300 80" className="w-full h-full" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="analyzeGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.3" />
+              <stop offset="100%" stopColor="#3B82F6" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          <motion.path
+            d="M0,60 C25,55 50,45 75,40 S125,30 150,25 S200,18 225,14 S275,8 300,5"
+            fill="none" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round"
+            initial={{ pathLength: 0, opacity: 0 }}
+            animate={inView ? { pathLength: 1, opacity: 1 } : {}}
+            transition={{ duration: 1.2, ease: "easeInOut" }}
+          />
+          <motion.path
+            d="M0,60 C25,55 50,45 75,40 S125,30 150,25 S200,18 225,14 S275,8 300,5 L300,80 L0,80 Z"
+            fill="url(#analyzeGrad)"
+            initial={{ opacity: 0 }}
+            animate={inView ? { opacity: 1 } : {}}
+            transition={{ delay: 0.8, duration: 0.6 }}
+          />
+        </svg>
+      </div>
+      {/* Insight chips */}
+      <div className="grid grid-cols-2 gap-2">
+        {[
+          { label: "Pearson r = 0.87", sub: "Income → Churn", color: "#6366F1" },
+          { label: "Anomaly at row 42", sub: "Z-score: 3.8", color: "#EF4444" },
+          { label: "Peak: Q3 2024", sub: "Category insight", color: "#F59E0B" },
+          { label: "14 plugins ran", sub: "0 errors", color: "#22c55e" },
+        ].map((chip, i) => (
+          <motion.div key={i} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.6 + i * 0.15 }}
+            className="px-3 py-2 rounded-xl border flex flex-col gap-0.5"
+            style={{ borderColor: chip.color + "40", background: chip.color + "0D" }}>
+            <span className="text-[11px] font-bold" style={{ color: chip.color }}>{chip.label}</span>
+            <span className="text-[10px]" style={{ color: "var(--txt-m)" }}>{chip.sub}</span>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function AIVisual() {
+  const messages = [
+    { role: "user", text: "What's the top factor driving customer churn?" },
+    { role: "ai", text: "Based on your dataset, low income (<$40K) combined with age under 30 predicts churn with 89% accuracy. These 312 customers are your highest-risk segment." },
+  ];
+  return (
+    <div className="flex flex-col gap-3 w-full">
+      <div className="flex items-center gap-2 mb-1">
+        <Bot size={14} style={{ color: "#6366F1" }} />
+        <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--txt-m)" }}>Gemini 2.5 Flash · AI Chat</span>
+        <div className="ml-auto flex gap-1">
+          <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="text-[10px]" style={{ color: "var(--txt-m)" }}>Live</span>
+        </div>
+      </div>
+      {messages.map((m, i) => (
+        <motion.div key={i}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: i * 0.6 }}
+          className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+          <div className={`max-w-[85%] px-4 py-2.5 rounded-2xl text-xs leading-relaxed`}
+            style={m.role === "user"
+              ? { background: "#6366F1", color: "#fff", borderBottomRightRadius: "4px" }
+              : { background: "var(--card-bg)", border: "1px solid var(--border)", color: "var(--txt)", borderBottomLeftRadius: "4px" }}>
+            {m.text}
+          </div>
+        </motion.div>
+      ))}
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.4 }}
+        className="flex items-center gap-2 px-3 py-2 rounded-xl border mt-1"
+        style={{ borderColor: "var(--border)", background: "var(--card-bg)" }}>
+        <span className="text-xs flex-1" style={{ color: "var(--txt-m)" }}>Ask anything about your data…</span>
+        <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: "#6366F1" }}>
+          <ArrowRight size={10} color="#fff" />
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+function PredictVisual() {
+  const shapBars = [
+    { feature: "income", imp: 82, color: "#A855F7" },
+    { feature: "age", imp: 65, color: "#A855F7" },
+    { feature: "tenure_months", imp: 54, color: "#A855F7" },
+    { feature: "num_products", imp: 37, color: "#A855F7" },
+    { feature: "is_active", imp: 28, color: "#A855F7" },
+  ];
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true });
+  return (
+    <div ref={ref} className="flex flex-col gap-4 w-full">
+      <div className="flex gap-3">
+        {[
+          { label: "Best Model", val: "XGBoost" },
+          { label: "Accuracy", val: "91.4%" },
+          { label: "RMSE", val: "0.083" },
+        ].map((s, i) => (
+          <motion.div key={i} initial={{ opacity: 0, y: 8 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ delay: i * 0.15 }}
+            className="flex-1 px-3 py-2 rounded-xl border flex flex-col gap-0.5 text-center"
+            style={{ background: "#A855F70D", borderColor: "#A855F740" }}>
+            <span className="text-base font-black" style={{ color: "#A855F7" }}>{s.val}</span>
+            <span className="text-[10px]" style={{ color: "var(--txt-m)" }}>{s.label}</span>
+          </motion.div>
+        ))}
+      </div>
+      <div className="flex flex-col gap-2.5">
+        <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--txt-m)" }}>SHAP Feature Importance</span>
+        {shapBars.map((b, i) => (
+          <div key={i} className="flex items-center gap-3">
+            <span className="text-[11px] font-mono w-28 shrink-0" style={{ color: "var(--txt)" }}>{b.feature}</span>
+            <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: "var(--border)" }}>
+              <motion.div className="h-full rounded-full" style={{ background: b.color }}
+                initial={{ width: 0 }}
+                animate={inView ? { width: `${b.imp}%` } : {}}
+                transition={{ delay: i * 0.12 + 0.3, duration: 0.6, ease: "easeOut" }}
+              />
+            </div>
+            <span className="text-[11px] font-bold w-7 text-right" style={{ color: b.color }}>{b.imp}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ReportVisual() {
+  const pieData = [
+    { label: "Churned", pct: 38, color: "#EF4444" },
+    { label: "At-risk", pct: 24, color: "#F59E0B" },
+    { label: "Retained", pct: 38, color: "#22c55e" },
+  ];
+  return (
+    <div className="flex flex-col gap-4 w-full">
+      <div className="flex gap-4 items-center">
+        {/* mini donut */}
+        <div className="relative w-24 h-24 shrink-0">
+          <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
+            {(() => {
+              let offset = 0;
+              return pieData.map((s, i) => {
+                const dash = (s.pct / 100) * 88;
+                const el = (
+                  <motion.circle key={i} cx="18" cy="18" r="14"
+                    fill="none" stroke={s.color} strokeWidth="7"
+                    strokeDasharray={`${dash} 88`}
+                    strokeDashoffset={-offset}
+                    initial={{ strokeDasharray: "0 88" }}
+                    animate={{ strokeDasharray: `${dash} 88` }}
+                    transition={{ delay: i * 0.3, duration: 0.6 }}
+                  />
+                );
+                offset += dash;
+                return el;
+              });
+            })()}
+          </svg>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-xs font-black" style={{ color: "var(--txt)" }}>5K</span>
+          </div>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          {pieData.map((s) => (
+            <div key={s.label} className="flex items-center gap-2">
+              <div className="w-2.5 h-2.5 rounded-sm" style={{ background: s.color }} />
+              <span className="text-xs" style={{ color: "var(--txt)" }}>{s.label}</span>
+              <span className="text-xs font-bold ml-auto" style={{ color: s.color }}>{s.pct}%</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="flex gap-2 flex-wrap">
+        {["Executive PDF", "EDA Profile", "Chart.js Dashboard", "CSV Export"].map((tag) => (
+          <span key={tag} className="text-[10px] font-bold px-2.5 py-1 rounded-full border" style={{ borderColor: "var(--border)", color: "var(--txt-m)" }}>{tag}</span>
+        ))}
+      </div>
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1 }}
+        className="flex items-center gap-2 px-4 py-2.5 rounded-xl"
+        style={{ background: "#F59E0B18", border: "1px solid #F59E0B40" }}>
+        <TrendingUp size={14} style={{ color: "#F59E0B" }} />
+        <span className="text-xs font-bold" style={{ color: "#F59E0B" }}>Report generated in 2.3 seconds</span>
+      </motion.div>
+    </div>
+  );
+}
+
+/* ─── Pipeline data with visual component ────────────────────────────────── */
+const PIPELINE_STAGES = [
+  {
+    num: "01", label: "Ingest", icon: UploadCloud, color: "#FF5722",
+    desc: "Upload CSV, Excel or Google Sheets. DataForge auto-detects delimiters, data types and schema in seconds.",
+    Visual: IngestVisual,
+  },
+  {
+    num: "02", label: "Clean", icon: Wand2, color: "#EF4444",
+    desc: "Impute missing values, remove duplicates and eliminate Z-score outliers automatically. Zero manual steps.",
+    Visual: CleanVisual,
+  },
+  {
+    num: "03", label: "Analyze", icon: Activity, color: "#3B82F6",
+    desc: "14 deterministic plugins surface trends, Pearson correlations, anomaly spikes and forecasts.",
+    Visual: AnalyzeVisual,
+  },
+  {
+    num: "04", label: "Ask AI", icon: MessageSquareCode, color: "#6366F1",
+    desc: "Query your dataset in plain English. Google Gemini 2.5 Flash returns instant, data-backed answers.",
+    Visual: AIVisual,
+  },
+  {
+    num: "05", label: "Predict", icon: Cpu, color: "#A855F7",
+    desc: "FLAML auto-selects and tunes the best ML model. SHAP charts explain every prediction.",
+    Visual: PredictVisual,
+  },
+  {
+    num: "06", label: "Report", icon: FileText, color: "#F59E0B",
+    desc: "Interactive Chart.js dashboards, ydata EDA profiles and one-click executive PDF exports.",
+    Visual: ReportVisual,
+  },
+];
+
+/* ─── Pipeline showcase — scroll-jacked sticky section ─────────────── */
+function PipelineShowcase() {
+  const [active, setActive] = useState(0);
+  const outerRef = useRef<HTMLDivElement>(null);
+  const { Visual, color } = PIPELINE_STAGES[active];
+
+  // Derive active stage purely from scroll position inside the outer container
+  useEffect(() => {
+    const onScroll = () => {
+      const outer = outerRef.current;
+      if (!outer) return;
+      const rect = outer.getBoundingClientRect();
+      // scrollable distance = total height minus one viewport
+      const scrollable = outer.offsetHeight - window.innerHeight;
+      const scrolled = Math.max(0, -rect.top);
+      const progress = scrollable > 0 ? Math.min(1, scrolled / scrollable) : 0;
+      const idx = Math.min(
+        PIPELINE_STAGES.length - 1,
+        Math.floor(progress * PIPELINE_STAGES.length)
+      );
+      setActive(idx);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll(); // init
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const timelineFill = (active / (PIPELINE_STAGES.length - 1)) * 100;
+
+  return (
+    // Outer tall container — provides the scroll space (100vh × stages)
+    <div ref={outerRef} style={{ height: `${PIPELINE_STAGES.length * 100}vh` }} className="relative">
+
+      {/* Inner sticky panel — stays locked in view */}
+      <div className="sticky top-0 h-screen flex flex-col justify-center overflow-hidden px-5 sm:px-8">
+        <div className="max-w-6xl mx-auto w-full flex flex-col gap-8">
+
+          {/* Section header */}
+          <div className="flex flex-col gap-2">
+            <span className="text-[11px] font-extrabold uppercase tracking-widest" style={{ color: "var(--accent)" }}>
+              How It Works
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-black tracking-tight" style={{ color: "var(--txt)" }}>
+              6-Stage Automated Pipeline
+            </h2>
+          </div>
+
+          {/* Split */}
+          <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
+
+            {/* Left — timeline */}
+            <div className="lg:w-2/5 relative flex flex-col gap-0">
+              {/* grey base line */}
+              <div className="absolute left-6 top-0 bottom-0 w-px" style={{ background: "var(--border)", zIndex: 0 }} />
+              {/* colored fill line */}
+              <div
+                className="absolute left-6 top-0 w-px transition-all duration-500 ease-out"
+                style={{
+                  height: `${timelineFill}%`,
+                  background: `linear-gradient(to bottom, ${PIPELINE_STAGES[0].color}, ${PIPELINE_STAGES[active].color})`,
+                  zIndex: 0,
+                }}
+              />
+
+              {PIPELINE_STAGES.map((step, i) => {
+                const isActive = active === i;
+                const isPast = i < active;
+                return (
+                  <button
+                    key={i}
+                    onClick={() => setActive(i)}
+                    className="relative z-10 pl-16 pb-6 last:pb-0 text-left group w-full"
+                  >
+                    {/* Opaque base to block the line from showing through */}
+                    <div className="absolute left-0 top-0 w-12 h-12 rounded-full z-10" style={{ background: "var(--bg)" }}>
+                      <div
+                        className="w-full h-full rounded-full flex items-center justify-center border-2 transition-all duration-300"
+                        style={{
+                          borderColor: isActive || isPast ? step.color : "var(--border)",
+                          background: isActive ? step.color + "22" : isPast ? step.color + "10" : "var(--card-bg)",
+                          boxShadow: isActive ? `0 0 20px ${step.color}55` : "none",
+                        }}
+                      >
+                        <step.icon size={18} style={{ color: isActive || isPast ? step.color : "var(--txt-m)" }} />
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-0.5 pt-2">
+                      <span
+                        className="text-[10px] font-black uppercase tracking-wider"
+                        style={{ color: isActive ? step.color : isPast ? step.color + "88" : "var(--txt-m)" }}
+                      >
+                        Stage {step.num}
+                      </span>
+                      <h3
+                        className="text-base font-extrabold transition-colors duration-200"
+                        style={{ color: isActive ? "var(--txt)" : "var(--txt-m)", opacity: isPast ? 0.5 : 1 }}
+                      >
+                        {step.label}
+                      </h3>
+                      <AnimatePresence>
+                        {isActive && (
+                          <motion.p
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="text-sm leading-relaxed mt-1 overflow-hidden"
+                            style={{ color: "var(--txt-m)" }}
+                          >
+                            {step.desc}
+                          </motion.p>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Right — visual panel (NOT sticky here — outer is already pinned) */}
+            <div className="lg:w-3/5">
+              <div
+                className="rounded-2xl border overflow-hidden shadow-2xl transition-all duration-500"
+                style={{ borderColor: color + "50", background: "var(--card-bg)", boxShadow: `0 8px 40px ${color}18` }}
+              >
+                {/* browser chrome */}
+                <div className="flex items-center gap-2 px-4 py-3 border-b" style={{ borderColor: "var(--border)", background: "var(--bg)" }}>
+                  <div className="w-2.5 h-2.5 rounded-full bg-red-500" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-amber-400" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-green-500" />
+                  <div className="flex-1 mx-3 h-6 rounded-md px-3 flex items-center text-[10px] font-mono" style={{ background: "var(--card-bg)", color: "var(--txt-m)" }}>
+                    dataforge.app / workspace
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: color }} />
+                    <span className="text-[10px] font-bold" style={{ color }}>{PIPELINE_STAGES[active].label}</span>
+                  </div>
+                </div>
+                {/* visual content */}
+                <div className="p-6">
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={active}
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -12 }}
+                      transition={{ duration: 0.3, ease: "easeInOut" }}
+                    >
+                      <Visual />
+                    </motion.div>
+                  </AnimatePresence>
+                </div>
+                {/* CTA strip */}
+                <div className="px-6 pb-5">
+                  <Link
+                    href="/?login=1"
+                    className="flex items-center justify-between w-full px-5 py-3 rounded-xl font-bold text-sm transition-all duration-200 hover:scale-[1.02] hover:shadow-xl group"
+                    style={{ background: color, color: "#fff" }}
+                  >
+                    <span>Try this with your own dataset →</span>
+                    <span className="text-xs font-normal opacity-75 group-hover:opacity-100 transition-opacity">Upload</span>
+                  </Link>
+                </div>
+              </div>
+              {/* dots */}
+              <div className="flex items-center justify-center gap-2 mt-4">
+                {PIPELINE_STAGES.map((s, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setActive(i)}
+                    className="rounded-full transition-all duration-300"
+                    style={{
+                      width: active === i ? "24px" : "8px",
+                      height: "8px",
+                      background: active === i ? s.color : i < active ? s.color + "55" : "var(--border)",
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+
+
+/* ─── Tech stack ─────────────────────────────────────────────────────────── */
+const TECH = [
+  { category: "Frontend", name: "Next.js + React", icon: Globe },
+  { category: "Backend API", name: "FastAPI + Python", icon: Server },
+  { category: "AI", name: "Google Gemini 2.5", icon: Bot },
+  { category: "AutoML", name: "FLAML + SHAP", icon: Cpu },
+  { category: "Auth + DB", name: "Supabase + OAuth 2.0", icon: Key },
+  { category: "Storage", name: "Supabase + Redis", icon: HardDrive },
+  { category: "Reporting", name: "WeasyPrint + ydata", icon: Zap },
+  { category: "Visualisation", name: "Chart.js", icon: Activity },
+];
+
+/* ══════════════════════════════════════════════════════════════════════════ */
 
 export default function AboutPage() {
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const [activePetal, setActivePetal] = useState<number | null>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -50,715 +622,261 @@ export default function AboutPage() {
     }
   }, []);
 
-  const fadeIn = {
-    hidden: { opacity: 0, y: 24 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" as const } }
+  const fadeUp = {
+    hidden: { opacity: 0, y: 28 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: "easeOut" as const } },
   };
-
-  const staggerContainer = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.12
-      }
-    }
-  };
-
-  // 6 Petals for the Interactive Radial Infographic
-  const PETALS = [
-    {
-      num: "01",
-      title: "Ingest",
-      name: "Smart Dataset Import",
-      icon: UploadCloud,
-      color: "#FF5722",
-      glow: "rgba(255, 87, 34, 0.35)",
-      bgGradient: "linear-gradient(135deg, rgba(255, 87, 34, 0.15), rgba(255, 87, 34, 0.03))",
-      borderColor: "rgba(255, 87, 34, 0.4)",
-      shortDesc: "Securely ingest CSV, Excel, or Google Sheets with automatic delimiter detection & schema resolution."
-    },
-    {
-      num: "02",
-      title: "Clean",
-      name: "Automated Preprocessing",
-      icon: Wand2,
-      color: "#EF4444",
-      glow: "rgba(239, 68, 68, 0.35)",
-      bgGradient: "linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.03))",
-      borderColor: "rgba(239, 68, 68, 0.4)",
-      shortDesc: "Automatically detect and impute missing values, remove duplicates, trim whitespace, and clean Z-score outliers."
-    },
-    {
-      num: "03",
-      title: "Analyze",
-      name: "Deterministic Insights",
-      icon: Activity,
-      color: "#3B82F6",
-      glow: "rgba(59, 130, 246, 0.35)",
-      bgGradient: "linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.03))",
-      borderColor: "rgba(59, 130, 246, 0.4)",
-      shortDesc: "Statistical algorithms discover linear trends, Pearson correlations, anomaly spikes, and category rankings."
-    },
-    {
-      num: "04",
-      title: "Ask AI",
-      name: "Natural Language Chat",
-      icon: MessageSquareCode,
-      color: "#6366F1",
-      glow: "rgba(99, 102, 241, 0.35)",
-      bgGradient: "linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(99, 102, 241, 0.03))",
-      borderColor: "rgba(99, 102, 241, 0.4)",
-      shortDesc: "Query your dataset in plain English with Google Gemini LLM to receive instant answers and chart formulas."
-    },
-    {
-      num: "05",
-      title: "Predict",
-      name: "AutoML & Explainability",
-      icon: Cpu,
-      color: "#A855F7",
-      glow: "rgba(168, 85, 247, 0.35)",
-      bgGradient: "linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(168, 85, 247, 0.03))",
-      borderColor: "rgba(168, 85, 247, 0.4)",
-      shortDesc: "Train FLAML machine learning models with automated feature importance ranking powered by SHAP values."
-    },
-    {
-      num: "06",
-      title: "Report",
-      name: "Executive PDF Exports",
-      icon: FileText,
-      color: "#F59E0B",
-      glow: "rgba(245, 158, 11, 0.35)",
-      bgGradient: "linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.03))",
-      borderColor: "rgba(245, 158, 11, 0.4)",
-      shortDesc: "Generate comprehensive EDA profiling reports, executive PDF downloads, and shareable dashboards."
-    }
-  ];
 
   return (
-    <div className="min-h-screen flex flex-col relative overflow-hidden" style={{ background: "var(--bg)", color: "var(--txt)" }}>
-      {/* Background ambient overlays */}
-      <div className="noise"></div>
-      <div className="mesh"></div>
+    <div className="min-h-screen flex flex-col transition-colors duration-300"
+      style={{ background: "var(--bg)", color: "var(--txt)" }}>
 
-      {showLoginModal && (
-        <LoginModal onClose={() => setShowLoginModal(false)} />
-      )}
-
-      {/* Navigation Header */}
+      {showLoginModal && <LoginModal onClose={() => setShowLoginModal(false)} />}
       <Header onLoginClick={() => setShowLoginModal(true)} />
 
-      {/* Main Container with elevated vertical breathing room */}
-      <main className="flex-1 w-full max-w-6xl mx-auto px-5 sm:px-8 md:px-12 py-6 sm:py-10 md:py-16 flex flex-col gap-20 md:gap-32">
+      <main className="flex-1 w-full flex flex-col">
 
-        {/* ====================================================================
-            SECTION 1: Hero Section — Story & Vision
-           ==================================================================== */}
-        <motion.section
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-80px" }}
-          variants={fadeIn}
-          className="flex flex-col items-center text-center pt-2 md:pt-6 max-w-4xl mx-auto"
-        >
-          {/* Status Badge */}
-          <div
-            className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border text-[11px] font-extrabold uppercase tracking-widest mb-6 shadow-sm"
-            style={{
-              background: "var(--surface)",
-              borderColor: "var(--border)",
-              color: "var(--accent)"
-            }}
-          >
-            <Sparkles size={14} className="animate-pulse" />
-            <span>DataForge Engine v3.0 · Automated Analytics</span>
+        {/* ══════════════ HERO ══════════════ */}
+        <section className="relative overflow-hidden min-h-[calc(100vh-80px)] flex items-center py-20 px-5 sm:px-8">
+          <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+            <div className="w-[600px] h-[600px] rounded-full filter blur-[140px] opacity-[0.12] transition-colors duration-500"
+              style={{ background: "var(--accent)" }} />
           </div>
 
-          {/* Primary Hero Title */}
-          <h1 className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight leading-[1.12] mb-6">
-            Turning Messy Datasets Into <br />
-            <span
-              className="inline-block bg-gradient-to-r from-[var(--accent)] via-blue-600 to-indigo-600 bg-clip-text text-transparent pb-1"
-              style={{
-                background: "linear-gradient(135deg, var(--accent) 0%, #2563eb 50%, #4f46e5 100%)",
-                WebkitBackgroundClip: "text",
-                backgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                color: "var(--accent)"
-              }}
-            >
-              Executive Intelligence
-            </span>
-          </h1>
-
-          {/* Hero Narrative Text */}
-          <p className="max-w-3xl text-base sm:text-lg md:text-xl leading-relaxed font-normal mb-10" style={{ color: "var(--txt-m)" }}>
-            DataForge is an automated data science platform engineered to eliminate manual spreadsheet bottlenecks.
-            From dataset cleaning and statistical insight discovery to AutoML predictive modeling and natural language AI queries—DataForge transforms raw files into decision-ready executive reports in seconds.
-          </p>
-
-          {/* Call to Action Buttons */}
-          <div className="flex items-center gap-4 flex-wrap justify-center mb-12">
-            <Link
-              href="/workspace"
-              className="px-8 py-4 rounded-xl text-xs font-extrabold uppercase tracking-wider transition-all duration-200 shadow-2xl flex items-center gap-2.5 hover:scale-105"
-              style={{ background: "var(--accent)", color: "#ffffff" }}
-            >
-              <span>Launch Workspace</span>
-              <ArrowRight size={16} />
-            </Link>
-            <a
-              href="#platform-architecture"
-              className="px-7 py-4 rounded-xl text-xs font-extrabold uppercase tracking-wider border transition-all duration-200 flex items-center gap-2 hover:border-[var(--accent)]"
-              style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--txt)" }}
-            >
-              <span>Explore Engine Architecture</span>
-            </a>
-          </div>
-
-          {/* Quick Metrics Ribbon */}
-          <div className="w-full grid grid-cols-2 sm:grid-cols-4 gap-4 p-5 rounded-2xl border" style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
-            {[
-              { label: "Pipeline Speed", val: "10x Faster", sub: "Automated cleaning & EDA" },
-              { label: "Data Quality", val: "100% Auto", sub: "Imputation & outlier bounds" },
-              { label: "AI Intelligence", val: "Gemini 2.5", sub: "Natural language querying" },
-              { label: "Predictive Models", val: "FLAML AutoML", sub: "With SHAP explainability" }
-            ].map((m, idx) => (
-              <div key={idx} className="flex flex-col items-center text-center p-2">
-                <span className="text-xl sm:text-2xl font-black" style={{ color: "var(--accent)" }}>{m.val}</span>
-                <span className="text-xs font-extrabold mt-0.5" style={{ color: "var(--txt)" }}>{m.label}</span>
-                <span className="text-[10px]" style={{ color: "var(--txt-m)" }}>{m.sub}</span>
-              </div>
-            ))}
-          </div>
-        </motion.section>
-
-        {/* ====================================================================
-            SECTION 2: Chapter 01 — Our Mission & Origin Story
-           ==================================================================== */}
-        <motion.section
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-80px" }}
-          variants={fadeIn}
-          className="gc rounded-3xl p-8 sm:p-12 md:p-16 relative overflow-hidden"
-          style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
-        >
-          <div className="max-w-3xl mx-auto flex flex-col gap-6">
-            <div className="flex items-center gap-2">
-              <Compass size={20} style={{ color: "var(--accent)" }} />
-              <span className="text-[11px] font-extrabold uppercase tracking-widest" style={{ color: "var(--accent)" }}>
-                Chapter 01 · Origin Story
-              </span>
-            </div>
-
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight" style={{ color: "var(--txt)" }}>
-              Why We Engineered DataForge
-            </h2>
-
-            <div className="text-base sm:text-lg leading-relaxed flex flex-col gap-5" style={{ color: "var(--txt-m)" }}>
-              <p>
-                Every single day, organizations, researchers, and students generate massive volumes of spreadsheet data. Yet, turning raw rows into meaningful answers remains a tedious, error-prone chore. Traditional software forces users into manual formula crafting, while advanced data science tools demand expertise in Python, R, or SQL.
-              </p>
-              <p>
-                We built DataForge to eliminate this technical divide. Conceived as both an academic breakthrough and a practical engineering solution, DataForge unifies automated data preprocessing, statistical insight discovery, predictive machine learning, and AI chat into a seamless web platform.
-              </p>
-              <p>
-                By automating the heavy lifting—from missing value imputation and Z-score outlier detection to FLAML model training and WeasyPrint executive PDF generation—DataForge empowers non-technical users and data analysts alike to derive enterprise-grade insights in seconds.
-              </p>
-            </div>
-          </div>
-        </motion.section>
-
-        {/* ====================================================================
-            SECTION 3: Chapter 02 — The Real-World Problems We Solve
-           ==================================================================== */}
-        <motion.section
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-80px" }}
-          variants={fadeIn}
-          className="flex flex-col gap-12"
-        >
-          <div className="text-center max-w-3xl mx-auto flex flex-col gap-3">
-            <span className="text-[11px] font-extrabold uppercase tracking-widest" style={{ color: "var(--accent)" }}>
-              Chapter 02 · Analytics Friction
-            </span>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight" style={{ color: "var(--txt)" }}>
-              The Challenges We Solve
-            </h2>
-            <p className="text-sm sm:text-base leading-relaxed" style={{ color: "var(--txt-m)" }}>
-              Traditional data workflows break down due to manual bottlenecks, fragmented software, and complex statistical code.
-            </p>
-          </div>
-
-          <motion.div
-            variants={staggerContainer}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-          >
-            {[
-              {
-                icon: FileSpreadsheet,
-                title: "Corrupted & Messy Files",
-                desc: "Raw CSV and Excel files contain missing values, duplicate entries, inconsistent date strings, and bad data types that corrupt analytics."
-              },
-              {
-                icon: Clock,
-                title: "Manual & Slow Workflows",
-                desc: "Analysts spend over 80% of their time writing repetitive formulas, filtering columns manually, and copying charts into slide decks."
-              },
-              {
-                icon: AlertTriangle,
-                title: "Steep Technical Barriers",
-                desc: "Advanced statistical modeling and machine learning traditionally require writing complex Python packages (Pandas, Scikit-Learn, Statsmodels)."
-              },
-              {
-                icon: HelpCircle,
-                title: "Hidden Insights & Patterns",
-                desc: "Raw numbers don't tell stories automatically. Identifying key anomalies, linear trends, and correlation matrices takes specialized statistics."
-              },
-              {
-                icon: LayoutGrid,
-                title: "Tool Fragmentation",
-                desc: "Juggling separate applications for data cleaning, graphing, AI assistance, and PDF reporting creates friction and data loss."
-              },
-              {
-                icon: ShieldCheck,
-                title: "Black-Box Machine Learning",
-                desc: "Standard predictive models give numbers without explanations. DataForge uses SHAP values to explain feature importance clearly."
-              }
-            ].map((problem, idx) => (
-              <motion.div
-                key={idx}
-                variants={fadeIn}
-                className="gc p-6 sm:p-8 rounded-2xl flex flex-col gap-4 transition-all duration-300 hover:-translate-y-1.5 border"
-                style={{ background: "var(--surface)", borderColor: "var(--border)" }}
-              >
-                <div
-                  className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-                  style={{ background: "rgba(255, 67, 16, 0.1)", color: "var(--accent)" }}
-                >
-                  <problem.icon size={24} />
-                </div>
-                <h3 className="text-lg font-extrabold" style={{ color: "var(--txt)" }}>
-                  {problem.title}
-                </h3>
-                <p className="text-xs sm:text-sm leading-relaxed" style={{ color: "var(--txt-m)" }}>
-                  {problem.desc}
+          <div className="relative z-10 w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+            {/* Left side: Text & CTA */}
+            <div className="flex flex-col items-start text-left gap-8">
+              <motion.div initial="hidden" animate="visible" variants={fadeUp} className="flex flex-col items-start">
+                <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-[1.05] mb-6 transition-colors duration-300"
+                  style={{ color: "var(--txt)" }}>
+                  Turning Messy Data<br />
+                  Into <span style={{ color: "var(--accent)" }}>Clear Decisions.</span>
+                </h1>
+                <p className="max-w-xl text-lg sm:text-xl leading-relaxed transition-colors duration-300"
+                  style={{ color: "var(--txt-m)" }}>
+                  DataForge takes any raw spreadsheet and delivers statistical insights, AI-generated answers,
+                  predictive models and executive reports — <Scratch>without writing a single line of code.</Scratch>
                 </p>
               </motion.div>
-            ))}
-          </motion.div>
-        </motion.section>
 
-        {/* ====================================================================
-            SECTION 4: Chapter 03 — The DataForge Advantage (Our Solution)
-           ==================================================================== */}
-        <motion.section
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-80px" }}
-          variants={fadeIn}
-          className="gc rounded-3xl p-8 sm:p-12 md:p-16 relative overflow-hidden"
-          style={{
-            background: "linear-gradient(135deg, var(--surface) 0%, var(--card) 100%)",
-            border: "1px solid var(--border)"
-          }}
-        >
-          <div className="max-w-3xl mx-auto flex flex-col gap-8">
-            <div className="flex flex-col gap-3">
-              <span className="text-[11px] font-extrabold uppercase tracking-widest" style={{ color: "var(--accent)" }}>
-                Chapter 03 · Unified Intelligence
-              </span>
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight" style={{ color: "var(--txt)" }}>
-                The DataForge Solution
-              </h2>
+              <motion.div initial="hidden" animate="visible" variants={fadeUp}
+                className="flex items-center gap-4 flex-wrap">
+                <Link href="/workspace"
+                  className="px-7 py-3.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg hover:scale-105 transition-transform duration-200"
+                  style={{ background: "var(--accent)", color: "#fff" }}>
+                  Launch Workspace <ArrowRight size={16} />
+                </Link>
+                <a href="#pipeline"
+                  className="px-7 py-3.5 rounded-xl text-sm font-bold border hover:border-[var(--accent)] transition-colors duration-200"
+                  style={{ borderColor: "var(--border)", background: "var(--card-bg)", color: "var(--txt)" }}>
+                  See How It Works
+                </a>
+              </motion.div>
             </div>
 
-            <p className="text-base sm:text-lg leading-relaxed" style={{ color: "var(--txt-m)" }}>
-              DataForge orchestrates the complete analytical lifecycle inside a single web workspace. Simply upload your dataset and receive complete end-to-end intelligence:
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            {/* Right side: Metrics Grid */}
+            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }} variants={fadeUp}
+              className="w-full grid grid-cols-2 gap-4">
               {[
-                { title: "Automated Data Preprocessing", text: "Imputes missing numerical & categorical values, drops duplicates, and standardizes formats automatically." },
-                { title: "Deterministic Statistical Engine", text: "Detects Z-score anomalies, Pearson correlation matrices, trend lines, and contribution breakdowns." },
-                { title: "Natural Language AI Querying", text: "Chat with your dataset in plain English powered by Google Gemini 2.5 Flash LLM." },
-                { title: "AutoML & SHAP Explainability", text: "Trains predictive models using FLAML and generates interpretable SHAP feature rankings." }
-              ].map((sol, i) => (
-                <div key={i} className="flex items-start gap-4 p-5 rounded-2xl border" style={{ borderColor: "var(--border)", background: "var(--bg)" }}>
-                  <CheckCircle2 size={22} className="shrink-0 mt-0.5" style={{ color: "var(--accent)" }} />
-                  <div>
-                    <h4 className="text-sm font-extrabold" style={{ color: "var(--txt)" }}>{sol.title}</h4>
-                    <p className="text-xs mt-1 leading-relaxed" style={{ color: "var(--txt-m)" }}>{sol.text}</p>
+                { label: "Pipeline Speed", val: 10, suffix: "×", bars: [30, 45, 60, 50, 75, 65, 90, 80, 100, 95] },
+                { label: "Data Quality Auto", val: 100, suffix: "%", bars: [40, 55, 70, 80, 75, 90, 85, 95, 100, 100] },
+                { label: "Insight Plugins", val: 14, suffix: "", bars: [20, 30, 40, 50, 60, 70, 80, 85, 90, 100] },
+                { label: "Chart Types", val: 6, suffix: "", bars: [50, 60, 70, 80, 75, 85, 90, 95, 100, 95] },
+              ].map((m, i) => (
+                <div key={i} className="flex flex-col items-center justify-center gap-3 p-6 sm:p-8 rounded-2xl border transition-colors duration-300 shadow-xl hover:-translate-y-1 transition-transform"
+                  style={{ background: "var(--card-bg)", borderColor: "var(--border)" }}>
+                  <SparkBar heights={m.bars} />
+                  <div className="flex flex-col items-center mt-2">
+                    <span className="text-4xl sm:text-5xl font-black transition-colors duration-300" style={{ color: "var(--accent)" }}>
+                      <Counter to={m.val} suffix={m.suffix} />
+                    </span>
+                    <span className="text-sm font-bold text-center mt-1 transition-colors duration-300" style={{ color: "var(--txt-m)" }}>
+                      {m.label}
+                    </span>
                   </div>
                 </div>
               ))}
-            </div>
+            </motion.div>
           </div>
-        </motion.section>
+        </section>
 
-        {/* ====================================================================
-            SECTION 5: Chapter 04 — How DataForge Works (Process & Interactive Pipeline)
-           ==================================================================== */}
-        <motion.section
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-80px" }}
-          variants={fadeIn}
-          className="flex flex-col gap-12"
-        >
-          <div className="text-center max-w-3xl mx-auto flex flex-col gap-3">
-            <span className="text-[11px] font-extrabold uppercase tracking-widest" style={{ color: "var(--accent)" }}>
-              Chapter 04 · System Pipeline
-            </span>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight" style={{ color: "var(--txt)" }}>
-              How DataForge Works
-            </h2>
-            <p className="text-sm sm:text-base leading-relaxed" style={{ color: "var(--txt-m)" }}>
-              From raw dataset ingestion to executive PDF reports in 6 automated stages.
-            </p>
-          </div>
+        {/* ══════════════ ORIGIN STORY ══════════════ */}
+        <section className="py-20 px-5 sm:px-8">
+          <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+            {/* Left side: Text */}
+            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }} variants={fadeUp}
+              className="flex flex-col gap-6 max-w-xl">
+              <span className="text-[11px] font-extrabold uppercase tracking-widest" style={{ color: "var(--accent)" }}>
+                Our Origin
+              </span>
+              <h2 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight transition-colors duration-300"
+                style={{ color: "var(--txt)" }}>
+                Why We Built DataForge
+              </h2>
+              <div className="flex flex-col gap-5 text-base sm:text-lg leading-relaxed text-justify transition-colors duration-300"
+                style={{ color: "var(--txt-m)" }}>
+                <p>
+                  Every day, organisations, researchers and students drown in spreadsheets.
+                  Turning raw rows into meaningful answers is still a tedious, error-prone chore —
+                  traditional tools demand manual formulas; advanced platforms demand Python expertise.
+                </p>
+                <p>
+                  We built DataForge to close that gap. By automating the entire analytical lifecycle —
+                  from missing-value imputation and outlier detection to FLAML model training and PDF generation —
+                  DataForge delivers <Scratch>enterprise-grade insights in seconds.</Scratch>
+                </p>
+                <p>
+                  The result: a unified platform where no-code users and professional analysts work side-by-side,
+                  making decisions backed by <Scratch>real statistical evidence.</Scratch>
+                </p>
+              </div>
+            </motion.div>
 
-          {/* Workflow Stage Cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-            {[
-              { step: "01", title: "Upload", icon: UploadCloud },
-              { step: "02", title: "Clean", icon: Wand2 },
-              { step: "03", title: "Analyze", icon: Sparkles },
-              { step: "04", title: "Ask AI", icon: MessageSquareCode },
-              { step: "05", title: "Model", icon: Cpu },
-              { step: "06", title: "Report", icon: FileText }
-            ].map((item, idx) => (
-              <div
-                key={idx}
-                className="gc p-4 rounded-xl flex flex-col items-center text-center gap-3 border transition-transform hover:-translate-y-1"
-                style={{ background: "var(--surface)", borderColor: "var(--border)" }}
+            {/* Right side: Abstract UI Composition (Chaos vs Clarity) */}
+            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }} variants={fadeUp}
+              className="relative w-full aspect-square flex items-center justify-center">
+
+              {/* Background glow */}
+              <div className="absolute inset-0 bg-gradient-to-tr from-transparent opacity-[0.1] rounded-full blur-[100px]"
+                style={{ backgroundImage: "radial-gradient(circle at top right, var(--accent), transparent)" }} />
+
+              {/* Back Card: Messy Spreadsheet (The Problem) */}
+              <motion.div
+                animate={{ y: [-8, 8, -8], rotate: [-2, -1, -2] }}
+                transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute top-[8%] left-[0%] w-[75%] rounded-xl border p-5 shadow-xl flex flex-col gap-2"
+                style={{ background: "var(--bg)", borderColor: "var(--border)", opacity: 0.5 }}
               >
-                <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full" style={{ background: "rgba(255, 67, 16, 0.12)", color: "var(--accent)" }}>
-                  {item.step}
-                </span>
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "var(--bg)", color: "var(--txt)" }}>
-                  <item.icon size={20} />
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-3 h-3 rounded-full bg-red-500/40" />
+                  <div className="w-3 h-3 rounded-full bg-amber-400/40" />
+                  <div className="w-3 h-3 rounded-full bg-green-500/40" />
+                  <div className="ml-2 w-20 h-2 bg-red-500/20 rounded-full" />
                 </div>
-                <span className="text-xs font-extrabold" style={{ color: "var(--txt)" }}>
-                  {item.title}
-                </span>
-              </div>
-            ))}
-          </div>
-
-          {/* Live Data Processing Pipeline Interactive Diagram */}
-          <div className="gc p-6 sm:p-10 rounded-3xl flex flex-col items-center gap-6 text-center border" style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
-            <div className="w-full max-w-4xl mx-auto rounded-2xl p-6 sm:p-8 border shadow-xl flex flex-col gap-6" style={{ borderColor: "var(--border)", background: "var(--bg)" }}>
-              <div className="flex items-center justify-between border-b pb-4 flex-wrap gap-2" style={{ borderColor: "var(--border)" }}>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-xs font-black uppercase tracking-widest" style={{ color: "var(--txt)" }}>DataForge Automated Engine Architecture</span>
-                </div>
-                <span className="text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-0.5 rounded-full" style={{ background: "rgba(255,67,16,0.12)", color: "var(--accent)" }}>
-                  Verified Execution Flow
-                </span>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-left">
-                {[
-                  { step: "1", title: "Raw Data Ingestion", desc: "CSV, Excel & Google Sheets parsing into Pandas DataFrames", color: "#FF5722" },
-                  { step: "2", title: "Smart Cleaning", desc: "Median/Mode imputation, duplicate removal & Z-score bounds", color: "#EF4444" },
-                  { step: "3", title: "Analytical Engine", desc: "Regression trends, Pearson correlations & Holt-Winters forecasting", color: "#3B82F6" },
-                  { step: "4", title: "Executive Output", desc: "Interactive Chart.js dashboards & WeasyPrint PDF reports", color: "#10B981" }
-                ].map((item, idx) => (
-                  <div key={idx} className="p-4 rounded-xl border flex flex-col gap-2 relative overflow-hidden" style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
-                    <div className="w-2 h-2 rounded-full absolute top-3 right-3" style={{ background: item.color }} />
-                    <span className="text-[10px] font-black uppercase tracking-wider" style={{ color: item.color }}>Stage 0{item.step}</span>
-                    <h4 className="text-xs sm:text-sm font-black" style={{ color: "var(--txt)" }}>{item.title}</h4>
-                    <p className="text-[11px] font-medium leading-normal" style={{ color: "var(--txt-m)" }}>{item.desc}</p>
+                {/* Spreadsheet grid */}
+                {[...Array(6)].map((_, r) => (
+                  <div key={r} className="grid grid-cols-5 gap-1.5">
+                    {[...Array(5)].map((_, c) => (
+                      <div key={c} className="h-4 rounded-sm border"
+                        style={{
+                          borderColor: "var(--border)",
+                          background: (r === 2 && c === 3) || (r === 4 && c === 1) ? "rgba(239, 68, 68, 0.2)" : "var(--card-bg)"
+                        }}
+                      />
+                    ))}
                   </div>
                 ))}
-              </div>
-            </div>
-            <p className="text-xs sm:text-sm font-semibold max-w-lg" style={{ color: "var(--txt-m)" }}>
-              What Happens After You Upload — DataForge securely ingests, cleans, analyzes, models, and generates interactive reports automatically.
-            </p>
-          </div>
-        </motion.section>
+              </motion.div>
 
-        {/* ====================================================================
-            SECTION 6: Chapter 05 — Core Capabilities (Radial Petals Infographic)
-           ==================================================================== */}
-        <motion.section
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-80px" }}
-          variants={fadeIn}
-          className="flex flex-col gap-16 py-4"
-        >
-          <div className="text-center max-w-3xl mx-auto flex flex-col gap-3">
-            <span className="text-[11px] font-extrabold uppercase tracking-widest" style={{ color: "var(--accent)" }}>
-              Chapter 05 · Core Capabilities
-            </span>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight" style={{ color: "var(--txt)" }}>
-              What You Can Do
-            </h2>
-            <p className="text-sm sm:text-base leading-relaxed" style={{ color: "var(--txt-m)" }}>
-              The DataForge Engine orchestrates 6 interconnected capabilities around your uploaded dataset.
-            </p>
-          </div>
-
-          {/* RADIAL PETAL INFOGRAPHIC */}
-          <div className="relative w-full max-w-5xl mx-auto flex flex-col items-center">
-            {/* Center Node */}
-            <div className="relative z-20 mb-12 md:mb-16">
-              <div
-                className="w-48 h-48 sm:w-56 sm:h-56 rounded-full flex flex-col items-center justify-center text-center p-6 shadow-2xl transition-all duration-300 border-2"
-                style={{
-                  background: "radial-gradient(circle, var(--surface) 0%, var(--card) 100%)",
-                  borderColor: "var(--accent)",
-                  boxShadow: "0 0 40px var(--glow)"
-                }}
+              {/* Front Card: Clear Insight (The Solution) */}
+              <motion.div
+                animate={{ y: [8, -8, 8], rotate: [1, 2, 1] }}
+                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                className="absolute bottom-[10%] right-[0%] w-[85%] rounded-xl border p-6 sm:p-8 shadow-2xl backdrop-blur-xl flex flex-col gap-5"
+                style={{ background: "var(--card-bg)", borderColor: "var(--accent)" }}
               >
-                <div className="w-10 h-10 rounded-full flex items-center justify-center mb-2" style={{ background: "rgba(255, 67, 16, 0.15)", color: "var(--accent)" }}>
-                  <Database size={22} className="animate-spin" style={{ animationDuration: "12s" }} />
-                </div>
-                <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: "var(--accent)" }}>
-                  DATAFORGE
-                </span>
-                <h3 className="text-xs sm:text-sm font-black uppercase tracking-tight mt-1 leading-snug" style={{ color: "var(--txt)" }}>
-                  AUTOMATED ANALYTICS PIPELINE
-                </h3>
-                <span className="text-[10px] mt-1 opacity-70" style={{ color: "var(--txt-m)" }}>
-                  6 Interconnected Modules
-                </span>
-              </div>
-            </div>
-
-            {/* Radial Petals Grid */}
-            <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
-              {PETALS.map((petal, idx) => (
-                <motion.div
-                  key={idx}
-                  whileHover={{ scale: 1.03, y: -4 }}
-                  onMouseEnter={() => setActivePetal(idx)}
-                  onMouseLeave={() => setActivePetal(null)}
-                  className="gc p-6 rounded-2xl flex flex-col gap-3 relative overflow-hidden transition-all duration-300 border"
-                  style={{
-                    background: petal.bgGradient,
-                    borderColor: activePetal === idx ? petal.color : "var(--border)",
-                    boxShadow: activePetal === idx ? `0 8px 30px ${petal.glow}` : "none"
-                  }}
-                >
-                  <div className="flex items-center justify-between">
-                    <span
-                      className="text-xs font-black px-2.5 py-1 rounded-full text-white shadow-md"
-                      style={{ background: petal.color }}
-                    >
-                      {petal.num}
-                    </span>
-                    <div
-                      className="w-10 h-10 rounded-xl flex items-center justify-center"
-                      style={{ background: "var(--surface)", color: petal.color, border: `1px solid ${petal.borderColor}` }}
-                    >
-                      <petal.icon size={20} />
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center"
+                      style={{ background: "var(--accent)", color: "#000" }}>
+                      <Wand2 size={20} />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <div className="w-24 h-2.5 rounded-full" style={{ background: "var(--txt)" }} />
+                      <div className="w-16 h-2 rounded-full" style={{ background: "var(--txt-m)" }} />
                     </div>
                   </div>
-
-                  <div className="mt-1">
-                    <span className="text-[10px] font-extrabold uppercase tracking-widest" style={{ color: petal.color }}>
-                      {petal.title}
-                    </span>
-                    <h4 className="text-base font-extrabold mt-0.5" style={{ color: "var(--txt)" }}>
-                      {petal.name}
-                    </h4>
+                  <div className="px-2.5 py-1 rounded text-[10px] font-extrabold uppercase tracking-wider text-green-400 bg-green-400/10 border border-green-400/20">
+                    High Confidence
                   </div>
+                </div>
 
-                  <p className="text-xs leading-relaxed" style={{ color: "var(--txt-m)" }}>
-                    {petal.shortDesc}
-                  </p>
+                {/* Abstract Bar Chart */}
+                <div className="flex items-end gap-2 h-28 mt-2">
+                  {[30, 50, 40, 70, 55, 100].map((h, i) => (
+                    <div key={i} className="flex-1 rounded-t-md transition-all duration-500 relative group"
+                      style={{
+                        height: `${h}%`,
+                        background: i === 5 ? "var(--accent)" : "var(--border)"
+                      }}>
+                      {i === 5 && (
+                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full" style={{ background: "var(--accent)" }} />
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Insight Text */}
+                <div className="flex flex-col gap-2 mt-2">
+                  <div className="w-full h-2.5 rounded-full opacity-40" style={{ background: "var(--txt)" }} />
+                  <div className="w-4/5 h-2.5 rounded-full opacity-40" style={{ background: "var(--txt)" }} />
+                </div>
+              </motion.div>
+
+            </motion.div>
+          </div>
+        </section>
+
+        {/* ══════════════ PIPELINE ══════════════ */}
+        <section id="pipeline">
+          <PipelineShowcase />
+        </section>
+
+        {/* ══════════════ TECH STACK ══════════════ */}
+        <section id="platform-architecture" className="py-20 px-5 sm:px-8">
+          <div className="max-w-6xl mx-auto flex flex-col gap-12">
+            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }} variants={fadeUp}
+              className="flex flex-col gap-3">
+              <span className="text-[11px] font-extrabold uppercase tracking-widest" style={{ color: "var(--accent)" }}>
+                Behind the Scenes
+              </span>
+              <h2 className="text-3xl sm:text-5xl font-black tracking-tight transition-colors duration-300"
+                style={{ color: "var(--txt)" }}>
+                The Technology Stack
+              </h2>
+              <p className="max-w-xl text-base transition-colors duration-300" style={{ color: "var(--txt-m)" }}>
+                High-performance, production-verified technologies powering every layer of DataForge.
+              </p>
+            </motion.div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {TECH.map((t, i) => (
+                <motion.div key={i}
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ delay: (i % 4) * 0.07 }}
+                  className="p-5 rounded-2xl border flex flex-col gap-3 transition-all duration-300 hover:border-[var(--accent)] hover:-translate-y-1 hover:shadow-lg group relative overflow-hidden"
+                  style={{ background: "var(--card-bg)", borderColor: "var(--border)" }}>
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-[0.04] transition-opacity duration-500"
+                    style={{ background: "var(--accent)" }} />
+                  <div className="flex items-center justify-between relative z-10">
+                    <span className="text-[10px] font-bold uppercase tracking-wider transition-colors duration-300"
+                      style={{ color: "var(--txt-m)" }}>{t.category}</span>
+                    <t.icon size={16} style={{ color: "var(--accent)" }} />
+                  </div>
+                  <p className="text-sm font-bold relative z-10 transition-colors duration-300 group-hover:text-[var(--accent)]"
+                    style={{ color: "var(--txt)" }}>{t.name}</p>
                 </motion.div>
               ))}
             </div>
           </div>
-        </motion.section>
+        </section>
 
-        {/* ====================================================================
-            SECTION 7: Chapter 06 — Authentic Technology Stack
-           ==================================================================== */}
-        <motion.section
-          id="platform-architecture"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-80px" }}
-          variants={fadeIn}
-          className="flex flex-col gap-12"
-        >
-          <div className="text-center max-w-3xl mx-auto flex flex-col gap-3">
-            <span className="text-[11px] font-extrabold uppercase tracking-widest" style={{ color: "var(--accent)" }}>
-              Chapter 06 · Architecture & Tech Stack
-            </span>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight" style={{ color: "var(--txt)" }}>
-              Behind the Scenes
-            </h2>
-            <p className="text-sm sm:text-base leading-relaxed" style={{ color: "var(--txt-m)" }}>
-              Verified, high-performance technologies powering DataForge based on real backend implementation:
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              {
-                category: "Frontend",
-                name: "Next.js 16 & React 19",
-                icon: Globe,
-                desc: "Modern responsive web application built with App Router, TypeScript & Tailwind CSS."
-              },
-              {
-                category: "Backend REST API",
-                name: "FastAPI & Python 3.10+",
-                icon: Server,
-                desc: "High-throughput asynchronous Python server executing data cleaning and stats calculations."
-              },
-              {
-                category: "AI Conversational",
-                name: "Google Gemini 2.5 Flash",
-                icon: Bot,
-                desc: "Natural language query interpretation generating automated formulas & chart specifications."
-              },
-              {
-                category: "AutoML & Explainability",
-                name: "FLAML & SHAP Values",
-                icon: Cpu,
-                desc: "Automated model tuning and feature importance scoring for transparent predictions."
-              },
-              {
-                category: "Database & Auth",
-                name: "Supabase & OAuth 2.0",
-                icon: Key,
-                desc: "PostgreSQL database for users and project metadata with Google OAuth authentication."
-              },
-              {
-                category: "Data Visualization",
-                name: "Chart.js & React-Chartjs-2",
-                icon: PieChart,
-                desc: "Interactive line, bar, scatter, donut, and distribution charts with dark/light themes."
-              },
-              {
-                category: "Cloud Storage & Queues",
-                name: "Supabase Storage & Redis",
-                icon: HardDrive,
-                desc: "Encrypted file bucket storage for uploaded datasets with Redis task message queues."
-              },
-              {
-                category: "Executive Reporting",
-                name: "WeasyPrint & ydata-profiling",
-                icon: Zap,
-                desc: "Automated exploratory profiling and executive PDF report synthesis."
-              }
-            ].map((tech, idx) => (
-              <div
-                key={idx}
-                className="gc p-6 rounded-2xl flex flex-col gap-3 border"
-                style={{ background: "var(--surface)", borderColor: "var(--border)" }}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded border" style={{ borderColor: "var(--border)", color: "var(--txt-m)" }}>
-                    {tech.category}
-                  </span>
-                  <tech.icon size={20} style={{ color: "var(--accent)" }} />
-                </div>
-                <h3 className="text-sm font-extrabold mt-1" style={{ color: "var(--txt)" }}>
-                  {tech.name}
-                </h3>
-                <p className="text-xs leading-relaxed" style={{ color: "var(--txt-m)" }}>
-                  {tech.desc}
-                </p>
-              </div>
-            ))}
-          </div>
-        </motion.section>
-
-        {/* ====================================================================
-            SECTION 8: Chapter 07 — Future Vision & Roadmap
-           ==================================================================== */}
-        <motion.section
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-80px" }}
-          variants={fadeIn}
-          className="flex flex-col gap-12"
-        >
-          <div className="text-center max-w-3xl mx-auto flex flex-col gap-3">
-            <span className="text-[11px] font-extrabold uppercase tracking-widest" style={{ color: "var(--accent)" }}>
-              Chapter 07 · Product Roadmap
-            </span>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight" style={{ color: "var(--txt)" }}>
-              What's Next?
-            </h2>
-            <p className="text-sm sm:text-base leading-relaxed" style={{ color: "var(--txt-m)" }}>
-              Future innovations planned for DataForge to expand automated data engineering:
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              {
-                status: "Phase 1: Active In-Progress",
-                badgeColor: "#3B82F6",
-                title: "Advanced Time-Series Forecasting",
-                desc: "Expanding Holt-Winters and Prophet models for multi-variable trend forecasting and anomaly prediction."
-              },
-              {
-                status: "Phase 2: Upcoming",
-                badgeColor: "#8B5CF6",
-                title: "Multi-Sheet & Table Joining",
-                desc: "Automated relational joining and entity synthesis across multiple spreadsheet sheets and connected databases."
-              },
-              {
-                status: "Phase 3: Horizon",
-                badgeColor: "#EC4899",
-                title: "Live Cloud Connectors",
-                desc: "Direct integrations with Snowflake, BigQuery, AWS S3, and real-time streaming data sources."
-              }
-            ].map((item, idx) => (
-              <div
-                key={idx}
-                className="gc p-6 sm:p-8 rounded-2xl flex flex-col gap-4 relative overflow-hidden border"
-                style={{ background: "var(--surface)", borderColor: "var(--border)" }}
-              >
-                <div className="flex items-center gap-2">
-                  <span
-                    className="w-2.5 h-2.5 rounded-full"
-                    style={{ background: item.badgeColor }}
-                  />
-                  <span className="text-[11px] font-extrabold uppercase tracking-wider" style={{ color: item.badgeColor }}>
-                    {item.status}
-                  </span>
-                </div>
-                <h3 className="text-base font-extrabold" style={{ color: "var(--txt)" }}>
-                  {item.title}
-                </h3>
-                <p className="text-xs leading-relaxed" style={{ color: "var(--txt-m)" }}>
-                  {item.desc}
-                </p>
-              </div>
-            ))}
-          </div>
-        </motion.section>
-
-        {/* ====================================================================
-            SECTION 9: Chapter 08 — Meet the Builders
-           ==================================================================== */}
-        <motion.section
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-80px" }}
-          variants={fadeIn}
-          className="pt-4"
-        >
+        {/* ══════════════ TEAM ══════════════ */}
+        <section id="meet-the-builders" className="py-8">
           <TeamSection />
-        </motion.section>
+        </section>
 
       </main>
 
-      {/* Footer */}
+      <CTABanner
+        title="Ready to experience it?"
+        subtitle="Upload your dataset and get insights in under 60 seconds."
+        buttonText="Get Started Free"
+        href="/?login=1"
+      />
+
       <Footer />
     </div>
   );

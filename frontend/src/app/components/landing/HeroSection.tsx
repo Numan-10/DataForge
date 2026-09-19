@@ -4,6 +4,7 @@ import React, { useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
 import { apiFetch } from "@/lib/api";
+import Scratch from "../ui/Scratch";
 
 interface HeroSectionProps {
   onLoginRequired: () => void;
@@ -124,7 +125,7 @@ export default function HeroSection({ onLoginRequired }: HeroSectionProps) {
           </h1>
         </div>
         <p className="text-sm leading-relaxed font-light max-w-md" style={{ color: "var(--txt-m)" }}>
-          Upload your CSV and let us handle the architecture. Cleaning, Profiling, and AutoML in one unified pipeline.
+          Upload your CSV and let us handle the architecture. Cleaning, Profiling, and AutoML in one unified pipeline — without writing a <Scratch thickness={1.2}>single line of code.</Scratch>
         </p>
       </div>
 
@@ -259,6 +260,6 @@ export default function HeroSection({ onLoginRequired }: HeroSectionProps) {
         </div>
 
       </div>
-    </div>
+    </div >
   );
 }

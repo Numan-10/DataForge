@@ -64,7 +64,7 @@ export default function TeamSection() {
   }, []);
 
   return (
-    <section className="section overflow-hidden">
+    <section id="team-section" className="section overflow-hidden">
       <div className="max-w-6xl mx-auto px-5 md:px-8">
         <div className="team-reveal reveal max-w-2xl mx-auto text-center mb-16">
           <p className="section-eyebrow mb-3">The DataForge Team</p>

@@ -48,3 +48,6 @@ instance/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Private Deployment Notes
+deployment.md

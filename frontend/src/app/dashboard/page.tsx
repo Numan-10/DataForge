@@ -408,11 +408,6 @@ export default function DashboardPage() {
         <Link href="/" className="flex items-center gap-2 flex-shrink-0 no-underline">
           <Logo size={24} textSize={16} />
         </Link>
-        <div className="w-px h-5 flex-shrink-0" style={{ background: "var(--border)" }}></div>
-        <Link href="/workspace" className={`${styles.btnP} text-[10px] py-1.5 px-2.5`}>
-          <ChevronLeft className="w-3.5 h-3.5" />
-          <span className="hidden sm:inline">Workspace</span>
-        </Link>
         <div className="flex-1"></div>
 
         <ThemeSwitcher />

@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import Logo from "../Logo";
 
 export default function Footer() {
@@ -23,10 +24,10 @@ export default function Footer() {
           <div className="md:col-span-2 flex flex-col gap-3">
             <h4 className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--txt-f)" }}>Product</h4>
             <ul className="flex flex-col gap-2 text-xs" style={{ color: "var(--txt-m)" }}>
-              <li className="cursor-pointer hover:text-[color:var(--txt)] transition-colors">Ingestion</li>
-              <li className="cursor-pointer hover:text-[color:var(--txt)] transition-colors">Cleaning</li>
-              <li className="cursor-pointer hover:text-[color:var(--txt)] transition-colors">AutoML</li>
-              <li className="cursor-pointer hover:text-[color:var(--txt)] transition-colors">Reports</li>
+              <li><Link href="/products/ingestion" className="cursor-pointer hover:text-[color:var(--txt)] transition-colors">Ingestion</Link></li>
+              <li><Link href="/products/cleaning" className="cursor-pointer hover:text-[color:var(--txt)] transition-colors">Cleaning</Link></li>
+              <li><Link href="/products/automl" className="cursor-pointer hover:text-[color:var(--txt)] transition-colors">AutoML</Link></li>
+              <li><Link href="/products/reports" className="cursor-pointer hover:text-[color:var(--txt)] transition-colors">Reports</Link></li>
             </ul>
           </div>
 
@@ -44,8 +45,7 @@ export default function Footer() {
           <div className="md:col-span-3 flex flex-col gap-3">
             <h4 className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--txt-f)" }}>Team</h4>
             <ul className="flex flex-col gap-2 text-xs" style={{ color: "var(--txt-m)" }}>
-              <li className="cursor-pointer hover:text-[color:var(--txt)] transition-colors">GCET, Ganderbal</li>
-              <li className="cursor-pointer hover:text-[color:var(--txt)] transition-colors">Contact</li>
+              <li><Link href="/#team-section" className="cursor-pointer hover:text-[color:var(--txt)] transition-colors">DataForge Builders</Link></li>
             </ul>
           </div>
         </div>
