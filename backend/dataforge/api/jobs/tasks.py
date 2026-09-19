@@ -36,7 +36,7 @@ def _now() -> str:
 
 async def run_insights_task(
     job_id: str,
-    upload_id: int,
+    upload_id: str,
     user_id: int,
     top_n: int = 6,
 ):
@@ -121,7 +121,7 @@ async def run_insights_task(
 
 async def run_automl_task(
     job_id: str,
-    upload_id: int,
+    upload_id: str,
     user_id: int,
     target_col: str,
     task_choice: str = "auto-detect",
@@ -197,7 +197,7 @@ async def run_automl_task(
 
 async def run_eda_task(
     job_id: str,
-    upload_id: int,
+    upload_id: str,
     user_id: int,
     minimal: bool = True,
     sample_n: int = 5000,
@@ -256,7 +256,7 @@ async def run_eda_task(
 
 async def generate_report_task(
     job_id: str,
-    upload_id: int,
+    upload_id: str,
     user_id: int,
 ):
     from dataforge.api.jobs import registry
@@ -400,7 +400,7 @@ Write 4 sections:
 
 async def check_alerts_task(
     job_id: str,
-    upload_id: int,
+    upload_id: str,
     user_id: int,
 ):
     from dataforge.api.jobs import registry
@@ -456,7 +456,7 @@ async def check_alerts_task(
 
 # ── Shared helper ─────────────────────────────────────────────────────────────
 
-def _load_df(upload_id: int):
+def _load_df(upload_id: str):
     """
     Synchronous helper to load the best available DataFrame for an upload.
     Tries df_clean first, then df_raw, then attempts Supabase restore.

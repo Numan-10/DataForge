@@ -129,7 +129,7 @@ class User(BaseModel):
 class Job(BaseModel):
     id: str
     user_id: Optional[int] = None
-    upload_id: Optional[int] = None
+    upload_id: Optional[str] = None
     type: Optional[str] = None
     status: str = "queued"
     result_ref: Optional[str] = None
@@ -139,7 +139,7 @@ class Job(BaseModel):
 
 
 class Upload(BaseModel):
-    id: int
+    id: str
     user_id: Optional[int] = None
     filename: Optional[str] = None
     original_name: Optional[str] = None
@@ -158,7 +158,7 @@ class Upload(BaseModel):
 class ReportSchedule(BaseModel):
     id: int
     user_id: Optional[int] = None
-    upload_id: Optional[int] = None
+    upload_id: Optional[str] = None
     cron_expression: Optional[str] = None
     cron: Optional[str] = None
     cron_human: Optional[str] = None

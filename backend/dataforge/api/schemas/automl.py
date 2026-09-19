@@ -10,12 +10,12 @@ from pydantic import BaseModel, Field
 
 
 class AutoMLDetectTaskRequest(BaseModel):
-    upload_id: Optional[int] = None
+    upload_id: Optional[str] = None
     target_col: str = ""
 
 
 class AutoMLTrainRequest(BaseModel):
-    upload_id: Optional[int] = None
+    upload_id: Optional[str] = None
     target_col: str = Field(..., min_length=1)
     task_choice: str = "auto-detect"
     time_budget: int = Field(default=60, ge=10, le=900)
@@ -25,11 +25,11 @@ class AutoMLTrainRequest(BaseModel):
 class AutoMLTrainResponse(BaseModel):
     task_id: Optional[str] = None
     queued: bool
-    upload_id: Optional[int] = None
+    upload_id: Optional[str] = None
 
 
 class InsightsRunRequest(BaseModel):
-    upload_id: Optional[int] = None
+    upload_id: Optional[str] = None
     top_n: int = Field(default=6, ge=1, le=20)
 
 
@@ -39,7 +39,7 @@ class InsightsRunResponse(BaseModel):
 
 
 class RootCauseRequest(BaseModel):
-    upload_id: Optional[int] = None
+    upload_id: Optional[str] = None
     metric: Optional[str] = None
     dimensions: Optional[list[str]] = None
     date_col: Optional[str] = None
@@ -47,7 +47,7 @@ class RootCauseRequest(BaseModel):
 
 
 class ForecastRequest(BaseModel):
-    upload_id: Optional[int] = None
+    upload_id: Optional[str] = None
     date_col: Optional[str] = None
     metric_col: Optional[str] = None
     horizon: Optional[int] = Field(default=None, ge=1, le=365)

@@ -80,10 +80,10 @@ class AlertEngine:
         self._store.mkdir(parents=True, exist_ok=True)
 
     # ── Baseline management ───────────────────────────────────────────────────
-    def _baseline_path(self, upload_id: int) -> Path:
+    def _baseline_path(self, upload_id: str) -> Path:
         return self._store / f"baseline_{upload_id}.json"
 
-    def save_baseline(self, upload_id: int, df: pd.DataFrame, schema: dict) -> dict:
+    def save_baseline(self, upload_id: str, df: pd.DataFrame, schema: dict) -> dict:
         """Compute and persist baseline metrics for an upload."""
         baseline = self._compute_metrics(df, schema)
         baseline["saved_at"]  = datetime.utcnow().isoformat()
@@ -94,7 +94,7 @@ class AlertEngine:
 
         return baseline
 
-    def load_baseline(self, upload_id: int) -> dict | None:
+    def load_baseline(self, upload_id: str) -> dict | None:
         p = self._baseline_path(upload_id)
         if not p.exists():
             return None
@@ -134,7 +134,7 @@ class AlertEngine:
     # ── Alert check ───────────────────────────────────────────────────────────
     def check(
         self,
-        upload_id: int,
+        upload_id: str,
         df: pd.DataFrame,
         schema: dict,
         custom_rules: list[dict] | None = None,

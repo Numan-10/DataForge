@@ -91,7 +91,7 @@ _TTL = {
 
 # ── Public read-through helpers ───────────────────────────────────────────────
 
-def get_profile(upload_id: int) -> Optional[dict]:
+def get_profile(upload_id: str) -> Optional[dict]:
     key = f"profile:{upload_id}"
     cached = _get(key)
     if cached is not None:
@@ -100,31 +100,31 @@ def get_profile(upload_id: int) -> Optional[dict]:
     return None
 
 
-def set_profile(upload_id: int, profile: dict):
+def set_profile(upload_id: str, profile: dict):
     _set(f"profile:{upload_id}", profile, _TTL["profile"])
 
 
-def get_schema(upload_id: int) -> Optional[dict]:
+def get_schema(upload_id: str) -> Optional[dict]:
     return _get(f"schema:{upload_id}")
 
 
-def set_schema(upload_id: int, schema: dict):
+def set_schema(upload_id: str, schema: dict):
     _set(f"schema:{upload_id}", schema, _TTL["schema"])
 
 
-def get_clean_meta(upload_id: int) -> Optional[dict]:
+def get_clean_meta(upload_id: str) -> Optional[dict]:
     return _get(f"clean_meta:{upload_id}")
 
 
-def set_clean_meta(upload_id: int, meta: dict):
+def set_clean_meta(upload_id: str, meta: dict):
     _set(f"clean_meta:{upload_id}", meta, _TTL["clean_meta"])
 
 
-def get_alert_status(upload_id: int) -> Optional[dict]:
+def get_alert_status(upload_id: str) -> Optional[dict]:
     return _get(f"alert_status:{upload_id}")
 
 
-def set_alert_status(upload_id: int, status: dict):
+def set_alert_status(upload_id: str, status: dict):
     _set(f"alert_status:{upload_id}", status, _TTL["alert_status"])
 
 
@@ -136,7 +136,7 @@ def set_user_metrics(user_id: int, metrics: list):
     _set(f"user_metrics:{user_id}", metrics, _TTL["user_metrics"])
 
 
-def invalidate_upload(upload_id: int):
+def invalidate_upload(upload_id: str):
     """Nuke all cache keys associated with a dataset (call after any mutation)."""
     _delete(
         f"profile:{upload_id}",

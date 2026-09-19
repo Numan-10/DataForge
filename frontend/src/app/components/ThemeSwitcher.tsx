@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 const THEMES = [
   'dark', 'light', 'dracula', 'slate', 'emerald', 'nord', 'luxury', 'cupcake', 'solarized', 'lavender', 'matcha'
@@ -19,6 +19,8 @@ export default function ThemeSwitcher() {
   const [currentTheme, setCurrentTheme] = useState('light');
   const [currentFont, setCurrentFont] = useState('inter');
   const [activeTab, setActiveTab] = useState<'themes' | 'fonts'>('themes');
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('analyst-theme') || 'light';
@@ -27,6 +29,16 @@ export default function ThemeSwitcher() {
     setCurrentFont(savedFont);
     document.documentElement.setAttribute('data-theme', savedTheme);
     document.documentElement.setAttribute('data-font', savedFont);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const setTheme = (t: string) => {
@@ -46,8 +58,8 @@ export default function ThemeSwitcher() {
   };
 
   return (
-    <div className="dropdown dropdown-end z-[9999]">
-      <div tabIndex={0} role="button" className="ibt mr-1">
+    <div className="relative z-[9999]" ref={dropdownRef}>
+      <button onClick={() => setIsOpen(!isOpen)} className="ibt mr-1" aria-label="Toggle Theme">
         {/* Keeping original icon as requested */}
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 14.7255 3.09032 17.1962 4.85857 19C5.32626 19.4754 5.99264 19.7423 6.66667 19.7423C7.03967 19.7423 7.39893 19.8659 7.69348 20.0954L8.13488 20.4393C8.94828 21.0719 9.94589 21.4925 11.0028 21.7857C11.3323 21.877 11.666 21.9489 12 22Z" />
@@ -56,9 +68,10 @@ export default function ThemeSwitcher() {
           <circle cx="16.5" cy="9.5" r="1.2" fill="currentColor" stroke="none" />
           <circle cx="14.5" cy="14.5" r="1.2" fill="currentColor" stroke="none" />
         </svg>
-      </div>
+      </button>
       
-      <div tabIndex={0} className="dropdown-content bg-base-200 text-base-content rounded-xl top-px max-h-96 w-64 overflow-hidden shadow-2xl mt-12 border border-base-300 flex flex-col">
+      {isOpen && (
+        <div className="absolute right-0 bg-base-200 text-base-content rounded-xl top-full max-h-96 w-64 overflow-hidden shadow-2xl mt-2 border border-base-300 flex flex-col z-[10000]">
         
         {/* Toggle Tabs */}
         <div className="flex gap-1.5 p-1 mx-3 mt-3 mb-1 shrink-0 rounded-lg" style={{ background: "var(--border)" }}>
@@ -151,6 +164,7 @@ export default function ThemeSwitcher() {
           
         </div>
       </div>
+      )}
     </div>
   );
 }

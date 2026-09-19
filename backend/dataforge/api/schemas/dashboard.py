@@ -10,21 +10,21 @@ from pydantic import BaseModel, Field
 
 
 class DashboardStatsRequest(BaseModel):
-    upload_id: Optional[int] = None
+    upload_id: Optional[str] = None
     filters: Dict[str, Any] = Field(default_factory=dict)
     chart_dim: Optional[str] = None
     chart_metric: Optional[str] = None
 
 
 class DrilldownRequest(BaseModel):
-    upload_id: Optional[int] = None
+    upload_id: Optional[str] = None
     chart_id: Optional[str] = None
     x_label: Any = None
     col_name: str
 
 
 class ReportGenerateRequest(BaseModel):
-    upload_id: Optional[int] = None
+    upload_id: Optional[str] = None
 
 
 class ReportGenerateResponse(BaseModel):
@@ -33,7 +33,7 @@ class ReportGenerateResponse(BaseModel):
 
 
 class ScheduleCreateRequest(BaseModel):
-    upload_id: Optional[int] = None
+    upload_id: Optional[str] = None
     cron: str = "0 9 * * 1"
     email: Optional[str] = None
 
@@ -46,10 +46,10 @@ class MetricCreateRequest(BaseModel):
 
 
 class AlertsCheckRequest(BaseModel):
-    upload_id: Optional[int] = None
+    upload_id: Optional[str] = None
 
 
 class AssetLabelRequest(BaseModel):
-    upload_id: int
+    upload_id: str
     asset_type: str  # "dataset" | "model" | "report"
     label: str

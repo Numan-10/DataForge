@@ -37,12 +37,12 @@ class UploadService:
         try:
             persist(upload_id, "df_raw", df)
         except Exception as exc:
-            log.warning("Supabase write-through failed for upload %d: %s", upload_id, exc)
+            log.warning("Supabase write-through failed for upload %s: %s", upload_id, exc)
 
         return {"upload_id": upload_id, "profile": profile}
 
     def _log_upload(self, profile: dict, source_type: str, user: User,
-                    source_config: Optional[dict] = None) -> Optional[int]:
+                    source_config: Optional[dict] = None) -> Optional[str]:
         data = {
             "user_id": user.id,
             "filename": profile.get("filename", ""),

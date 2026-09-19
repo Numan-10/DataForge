@@ -10,43 +10,43 @@ from pydantic import BaseModel, Field
 
 
 class CleanRequest(BaseModel):
-    upload_id: Optional[int] = None
+    upload_id: Optional[str] = None
 
 
 class EDARequest(BaseModel):
-    upload_id: Optional[int] = None
+    upload_id: Optional[str] = None
     minimal: bool = True
     sample_n: int = Field(default=5000, ge=100, le=50_000)
 
 
 class QueryRequest(BaseModel):
-    upload_id: Optional[int] = None
+    upload_id: Optional[str] = None
     question: Optional[str] = None
     query: Optional[str] = None
     session_id: Optional[str] = None
 
 
 class TransformRequest(BaseModel):
-    upload_id: Optional[int] = None
+    upload_id: Optional[str] = None
     operations: List[Dict[str, Any]] = Field(default_factory=list)
 
 
 class SyncSheetsRequest(BaseModel):
-    upload_id: Optional[int] = None
+    upload_id: Optional[str] = None
 
 
 class AiConsentRequest(BaseModel):
-    upload_id: Optional[int] = None
+    upload_id: Optional[str] = None
     consent: bool
 
 
 class ChatSessionRequest(BaseModel):
-    upload_id: Optional[int] = None
+    upload_id: Optional[str] = None
     name: str = Field(default="New Chat", max_length=100)
 
 
 class CustomChartRequest(BaseModel):
-    upload_id: Optional[int] = None
+    upload_id: Optional[str] = None
     id: Optional[str] = None
     chart_type: str
     x_col: str
@@ -59,12 +59,12 @@ class CustomChartRequest(BaseModel):
 
 
 class CustomChartDeleteRequest(BaseModel):
-    upload_id: Optional[int] = None
+    upload_id: Optional[str] = None
     chart_id: str
 
 
 class PreviewParams(BaseModel):
-    upload_id: Optional[int] = None
+    upload_id: Optional[str] = None
     limit: int = Field(default=500, ge=50, le=5000)
     clean: bool = False
     columns: Optional[str] = None

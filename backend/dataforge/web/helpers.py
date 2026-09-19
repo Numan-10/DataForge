@@ -90,7 +90,7 @@ PROJECTS_DIR.mkdir(parents=True, exist_ok=True)
 # STORAGE PERSISTENCE HELPERS
 # ══════════════════════════════════════════════════════════════════════════════
 
-def _get_upload_user_id(upload_id: int):
+def _get_upload_user_id(upload_id: str):
     """Return the user_id for an Upload row."""
     try:
         up = db_get("uploads", upload_id)
@@ -99,13 +99,13 @@ def _get_upload_user_id(upload_id: int):
         return None
 
 
-def _get_filename(upload_id: int) -> str:
+def _get_filename(upload_id: str) -> str:
     """Fetch the filename from the cached profile or DB."""
     p = _load(upload_id, "profile") or {}
     return p.get("filename", "")
 
 
-def _persist(upload_id: int, key: str, obj):
+def _persist(upload_id: str, key: str, obj):
     """
     Write-through storage: always saves to local disk, also pushes to
     Supabase Storage when configured.
@@ -148,7 +148,7 @@ def _persist(upload_id: int, key: str, obj):
             current_app.logger.warning("Supabase _persist failed (key=%s): %s", key, _exc)
 
 
-def _load_persisted(upload_id: int, key: str):
+def _load_persisted(upload_id: str, key: str):
     """
     Load persisted data: tries local disk first, falls back to Supabase Storage.
     On Supabase hit, re-caches locally.
@@ -208,7 +208,7 @@ def _load_persisted(upload_id: int, key: str):
     return None
 
 
-def _project_meta(upload_id: int) -> dict:
+def _project_meta(upload_id: str) -> dict:
     d = PROJECTS_DIR / str(upload_id)
     return {
         "has_raw":   (d / "df_raw.parquet").exists() or (d / "df_raw").exists(),
@@ -251,7 +251,7 @@ def _get_upload_id() -> int | None:
     return uid
 
 
-def _get_upload_or_403(upload_id: int):
+def _get_upload_or_403(upload_id: str):
     from dataforge.db import db_client as _dbc
     # If Supabase client is available, validate ownership via DB
     if _dbc is not None:

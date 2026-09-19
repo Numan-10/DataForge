@@ -38,7 +38,7 @@ LEGACY_STORE_DIR = PROJECTS_DIR
 LEGACY_STORE_DIR.mkdir(exist_ok=True, parents=True)
 
 
-def _legacy_upath(upload_id: int, key: str) -> Path:
+def _legacy_upath(upload_id: str, key: str) -> Path:
     """Return the legacy projects-dir path for older uploads."""
     d = LEGACY_STORE_DIR / str(upload_id)
     d.mkdir(parents=True, exist_ok=True)
@@ -54,7 +54,7 @@ def _materialized_path(path: Path) -> Path | None:
     return None
 
 
-def _load_from_remote(upload_id: int, key: str):
+def _load_from_remote(upload_id: str, key: str):
     """Best-effort restore from Supabase storage for persisted uploads."""
     if key not in ("df_raw", "df_clean", "profile", "clean_meta", "automl_meta",
                    "chat_history", "last_insights", "last_schema", "last_summary",
@@ -91,7 +91,7 @@ def _load_from_remote(upload_id: int, key: str):
         return None
 
 
-def _upath(upload_id: int, key: str) -> Path:
+def _upath(upload_id: str, key: str) -> Path:
     """Return the base path for a given upload_id / key pair."""
     d = STORE_DIR / str(upload_id)
     d.mkdir(parents=True, exist_ok=True)
@@ -112,7 +112,7 @@ def _safe_df_for_parquet(df: pd.DataFrame) -> pd.DataFrame:
     return df_copy
 
 
-def _save(upload_id: int, key: str, obj):
+def _save(upload_id: str, key: str, obj):
     """Atomically write an object to disk (DataFrame → Parquet, bytes → joblib, else → JSON)."""
     path = _upath(upload_id, key)
     lock = FileLock(_lock_path(path))
@@ -159,7 +159,7 @@ def _save(upload_id: int, key: str, obj):
         pass
 
 
-def _load(upload_id: int, key: str):
+def _load(upload_id: str, key: str):
     """Load an object from disk: tries Parquet, joblib, JSON in order. Returns None on miss."""
     path = _upath(upload_id, key)
     p_pq = path.with_suffix('.parquet')
@@ -221,7 +221,7 @@ def _load(upload_id: int, key: str):
     return None
 
 
-def _exists(upload_id: int, key: str) -> bool:
+def _exists(upload_id: str, key: str) -> bool:
     """Check whether any format of a stored object exists on disk."""
     path = _upath(upload_id, key)
     return (path.with_suffix('.parquet').exists()
@@ -231,7 +231,7 @@ def _exists(upload_id: int, key: str) -> bool:
             or _materialized_path(_legacy_upath(upload_id, key)) is not None)
 
 
-def _clear_store(upload_id: int):
+def _clear_store(upload_id: str):
     """Remove all stored data for an upload."""
     d = STORE_DIR / str(upload_id)
     if d.exists():

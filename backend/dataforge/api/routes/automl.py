@@ -46,7 +46,7 @@ def _resolve_column(col_name: str, df_columns) -> str:
 async def api_automl_detect_task(
     body: AutoMLDetectTaskRequest,
     current_user: CurrentUser,
-    upload_id: Optional[int] = Query(default=None),
+    upload_id: Optional[str] = Query(default=None),
 ):
     target_upload_id = body.upload_id or upload_id
     if not target_upload_id:
@@ -80,7 +80,7 @@ async def api_automl_train(
     current_user: CurrentUser,
     background_tasks: BackgroundTasks,
     job_manager: JobManager = Depends(get_job_manager_dep),
-    upload_id: Optional[int] = Query(default=None),
+    upload_id: Optional[str] = Query(default=None),
 ):
     target_upload_id = body.upload_id or upload_id
     if not target_upload_id:
@@ -109,7 +109,7 @@ async def api_automl_train(
 @router.get("/automl/download", summary="Download the trained model (.joblib)")
 async def api_automl_download(
     current_user: CurrentUser,
-    upload_id: Optional[int] = Query(default=None),
+    upload_id: Optional[str] = Query(default=None),
 ):
     if not upload_id:
         raise HTTPException(400, "upload_id required")
@@ -136,7 +136,7 @@ async def api_automl_download(
 @router.get("/clean/download", summary="Download the cleaned dataset as CSV")
 async def api_clean_download(
     current_user: CurrentUser,
-    upload_id: Optional[int] = Query(default=None),
+    upload_id: Optional[str] = Query(default=None),
 ):
     if not upload_id:
         raise HTTPException(400, "upload_id required")

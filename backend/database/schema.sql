@@ -36,7 +36,7 @@ CREATE INDEX IF NOT EXISTS ix_data_sources_user_id ON data_sources(user_id);
 
 -- 3. UPLOADS
 CREATE TABLE IF NOT EXISTS uploads (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id INT REFERENCES users(id) ON DELETE CASCADE,
     filename VARCHAR(512),
     original_name VARCHAR(512),
@@ -58,7 +58,7 @@ CREATE INDEX IF NOT EXISTS ix_uploads_user_id ON uploads(user_id);
 CREATE TABLE IF NOT EXISTS analyses (
     id SERIAL PRIMARY KEY,
     user_id INT REFERENCES users(id) ON DELETE CASCADE,
-    upload_id INT REFERENCES uploads(id) ON DELETE CASCADE,
+    upload_id UUID REFERENCES uploads(id) ON DELETE CASCADE,
     type VARCHAR(64),
     summary TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW()
@@ -71,7 +71,7 @@ CREATE INDEX IF NOT EXISTS ix_analyses_upload_id ON analyses(upload_id);
 CREATE TABLE IF NOT EXISTS insight_records (
     id SERIAL PRIMARY KEY,
     user_id INT REFERENCES users(id) ON DELETE CASCADE,
-    upload_id INT REFERENCES uploads(id) ON DELETE CASCADE,
+    upload_id UUID REFERENCES uploads(id) ON DELETE CASCADE,
     type VARCHAR(64),
     title VARCHAR(512),
     description TEXT,
@@ -90,7 +90,7 @@ CREATE INDEX IF NOT EXISTS ix_insight_records_user_id ON insight_records(user_id
 CREATE TABLE IF NOT EXISTS reports (
     id SERIAL PRIMARY KEY,
     user_id INT REFERENCES users(id) ON DELETE CASCADE,
-    upload_id INT REFERENCES uploads(id) ON DELETE CASCADE,
+    upload_id UUID REFERENCES uploads(id) ON DELETE CASCADE,
     filename VARCHAR(512),
     triggered_by VARCHAR(64) DEFAULT 'manual',
     report_html TEXT,
@@ -106,7 +106,7 @@ CREATE INDEX IF NOT EXISTS ix_reports_upload_id ON reports(upload_id);
 CREATE TABLE IF NOT EXISTS alerts (
     id SERIAL PRIMARY KEY,
     user_id INT REFERENCES users(id) ON DELETE CASCADE,
-    upload_id INT REFERENCES uploads(id) ON DELETE CASCADE,
+    upload_id UUID REFERENCES uploads(id) ON DELETE CASCADE,
     filename VARCHAR(512),
     severity VARCHAR(32) DEFAULT 'warning',
     rule VARCHAR(64),
@@ -126,7 +126,7 @@ CREATE INDEX IF NOT EXISTS ix_alerts_upload_id ON alerts(upload_id);
 CREATE TABLE IF NOT EXISTS report_schedules (
     id SERIAL PRIMARY KEY,
     user_id INT REFERENCES users(id) ON DELETE CASCADE,
-    upload_id INT REFERENCES uploads(id) ON DELETE CASCADE,
+    upload_id UUID REFERENCES uploads(id) ON DELETE CASCADE,
     cron_expression VARCHAR(64),
     cron VARCHAR(64),
     cron_human VARCHAR(128),
@@ -159,7 +159,7 @@ CREATE INDEX IF NOT EXISTS ix_metrics_user ON metric_definitions(user_id);
 CREATE TABLE IF NOT EXISTS jobs (
     id VARCHAR(64) PRIMARY KEY,
     user_id INT REFERENCES users(id) ON DELETE CASCADE,
-    upload_id INT REFERENCES uploads(id) ON DELETE CASCADE,
+    upload_id UUID REFERENCES uploads(id) ON DELETE CASCADE,
     type VARCHAR(32),
     status VARCHAR(16) DEFAULT 'queued',
     result_ref TEXT,

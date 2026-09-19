@@ -34,7 +34,7 @@ class CSVConnector:
     Optional file-system watcher triggers a callback on each new file.
     """
 
-    def __init__(self, watch_dir: str | Path | None = None, upload_id: int | None = None):
+    def __init__(self, watch_dir: str | Path | None = None, upload_id: str | None = None):
         self.watch_dir  = Path(watch_dir) if watch_dir else None
         self.upload_id  = upload_id
         self._observer  = None

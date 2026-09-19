@@ -150,7 +150,7 @@ class SupabaseStorage:
             log.warning("SupabaseStorage.delete_path failed (%s): %s", path, exc)
             return False
 
-    def delete_upload(self, user_id: int, upload_id: int) -> bool:
+    def delete_upload(self, user_id: int, upload_id: str) -> bool:
         """Delete ALL files for an upload (called on dataset deletion)."""
         try:
             prefix = f"users/{user_id}/uploads/{upload_id}/"
@@ -171,14 +171,14 @@ class SupabaseStorage:
     # ── DataFrame helpers ─────────────────────────────────────────────────────
 
     @staticmethod
-    def _df_path(user_id: int, upload_id: int, key: str) -> str:
+    def _df_path(user_id: int, upload_id: str, key: str) -> str:
         return f"users/{user_id}/uploads/{upload_id}/{key}.parquet"
 
 
     def upload_dataframe(
         self,
         user_id:   int,
-        upload_id: int,
+        upload_id: str,
         df:        pd.DataFrame,
         key:       str = "raw",
     ) -> str:
@@ -216,7 +216,7 @@ class SupabaseStorage:
 
 
     # ── JSON helpers ────────────────────────────────────────────────────────
-    def upload_json(self, user_id: int, upload_id: int, key: str, obj: Any) -> str:
+    def upload_json(self, user_id: int, upload_id: str, key: str, obj: Any) -> str:
         if not STORAGE_OK:
             p = self._local_dir(user_id, upload_id) / f"{key}.json"
             with open(p, "w", encoding="utf-8") as f:
@@ -248,7 +248,7 @@ class SupabaseStorage:
             return None
 
     # ── Joblib/Model helpers (Bytes wrapper) ──────────────────────────────────
-    def upload_joblib(self, user_id: int, upload_id: int, key: str, obj_bytes: bytes) -> str:
+    def upload_joblib(self, user_id: int, upload_id: str, key: str, obj_bytes: bytes) -> str:
         if not STORAGE_OK:
             p = self._local_dir(user_id, upload_id) / f"{key}.joblib"
             p.write_bytes(obj_bytes)
@@ -277,7 +277,7 @@ class SupabaseStorage:
     def upload_html(
         self,
         user_id:   int,
-        upload_id: int,
+        upload_id: str,
         key:       str,
         html:      str,
     ) -> str:
@@ -322,13 +322,13 @@ class SupabaseStorage:
 
     # ── Local fallback helpers ────────────────────────────────────────────────
 
-    def _local_dir(self, user_id: int, upload_id: int) -> Path:
+    def _local_dir(self, user_id: int, upload_id: str) -> Path:
         d = _LOCAL_FALLBACK_DIR / str(upload_id)
         d.mkdir(parents=True, exist_ok=True)
         return d
 
     def _save_local_df(
-        self, user_id: int, upload_id: int, df: pd.DataFrame, key: str
+        self, user_id: int, upload_id: str, df: pd.DataFrame, key: str
     ) -> str:
         p = self._local_dir(user_id, upload_id) / f"{key}.parquet"
         df.to_parquet(p, index=False, compression="snappy")
@@ -347,7 +347,7 @@ class SupabaseStorage:
 
 
     def _save_local_bytes(
-        self, user_id: int, upload_id: int, filename: str, data: bytes
+        self, user_id: int, upload_id: str, filename: str, data: bytes
     ) -> str:
         p = self._local_dir(user_id, upload_id) / filename
         p.write_bytes(data)

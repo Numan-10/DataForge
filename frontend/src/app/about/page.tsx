@@ -421,6 +421,7 @@ function PipelineShowcase() {
       const rect = outer.getBoundingClientRect();
       // scrollable distance = total height minus one viewport
       const scrollable = outer.offsetHeight - window.innerHeight;
+      if (scrollable <= 0) return;
       const scrolled = Math.max(0, -rect.top);
       const progress = scrollable > 0 ? Math.min(1, scrolled / scrollable) : 0;
       const idx = Math.min(
@@ -438,10 +439,10 @@ function PipelineShowcase() {
 
   return (
     // Outer tall container — provides the scroll space (100vh × stages)
-    <div ref={outerRef} style={{ height: `${PIPELINE_STAGES.length * 100}vh` }} className="relative">
+    <div ref={outerRef} className="relative h-auto lg:h-[600vh]">
 
       {/* Inner sticky panel — stays locked in view */}
-      <div className="sticky top-0 h-screen flex flex-col justify-center overflow-hidden px-5 sm:px-8">
+      <div className="lg:sticky lg:top-0 lg:h-screen flex flex-col justify-center lg:overflow-hidden px-5 sm:px-8 py-20 lg:py-0">
         <div className="max-w-6xl mx-auto w-full flex flex-col gap-8">
 
           {/* Section header */}

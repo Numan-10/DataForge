@@ -34,7 +34,7 @@ class JobManager:
     async def dispatch_insights(
         self,
         background_tasks: BackgroundTasks,
-        upload_id: int,
+        upload_id: str,
         user_id: int,
         top_n: int = 6,
     ) -> str:
@@ -53,7 +53,7 @@ class JobManager:
     async def dispatch_automl(
         self,
         background_tasks: BackgroundTasks,
-        upload_id: int,
+        upload_id: str,
         user_id: int,
         target_col: str,
         task_choice: str = "auto-detect",
@@ -77,7 +77,7 @@ class JobManager:
     async def dispatch_eda(
         self,
         background_tasks: BackgroundTasks,
-        upload_id: int,
+        upload_id: str,
         user_id: int,
         minimal: bool = True,
         sample_n: int = 5000,
@@ -95,7 +95,7 @@ class JobManager:
         log.info("Dispatched EDA job %s for upload_id=%d", job_id, upload_id)
         return job_id
 
-    async def dispatch_report(self, background_tasks: BackgroundTasks, upload_id: int, user_id: int) -> str:
+    async def dispatch_report(self, background_tasks: BackgroundTasks, upload_id: str, user_id: int) -> str:
         """Dispatch an HTML report generation job. Returns job_id immediately."""
         active = registry.get_active_job(upload_id, "report")
         if active:
@@ -107,7 +107,7 @@ class JobManager:
         log.info("Dispatched report job %s for upload_id=%d", job_id, upload_id)
         return job_id
 
-    async def dispatch_alerts(self, background_tasks: BackgroundTasks, upload_id: int, user_id: int) -> str:
+    async def dispatch_alerts(self, background_tasks: BackgroundTasks, upload_id: str, user_id: int) -> str:
         """Dispatch an alerts check job. Returns job_id immediately."""
         active = registry.get_active_job(upload_id, "alerts")
         if active:

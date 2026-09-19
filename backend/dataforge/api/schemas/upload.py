@@ -36,13 +36,13 @@ class ProfileResponse(BaseModel):
 
 class UploadResponse(BaseModel):
     ok: bool
-    upload_id: int
+    upload_id: str
     profile: ProfileResponse
 
 
 class DuplicateCheckResponse(BaseModel):
     duplicate: bool
-    upload_id: Optional[int] = None
+    upload_id: Optional[str] = None
     filename: Optional[str] = None
     rows: Optional[int] = None
     cols: Optional[int] = None

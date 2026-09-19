@@ -191,7 +191,7 @@ def create_app() -> FastAPI:
     @app.websocket("/ws")
     async def websocket_endpoint(
         websocket: WebSocket,
-        upload_id: Optional[int] = None,
+        upload_id: Optional[str] = None,
         token: Optional[str] = None,
     ):
         """

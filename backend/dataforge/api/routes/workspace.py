@@ -38,7 +38,7 @@ router = APIRouter(tags=["workspace"])
 @router.get("/workspace/state", summary="Return full workspace state for an upload")
 async def api_workspace_state(
     current_user: CurrentUser,
-    upload_id: Optional[int] = Query(default=None),
+    upload_id: Optional[str] = Query(default=None),
 ):
     if not upload_id:
         raise HTTPException(400, "upload_id required")
@@ -146,7 +146,7 @@ async def api_workspace_state(
 @router.get("/preview", summary="Paginated dataset preview (DuckDB-accelerated)")
 async def api_preview(
     current_user: CurrentUser,
-    upload_id: Optional[int] = Query(default=None),
+    upload_id: Optional[str] = Query(default=None),
     limit: int = Query(default=500, ge=50, le=5000),
     clean: bool = Query(default=False),
     columns: Optional[str] = Query(default=None),
@@ -390,7 +390,7 @@ async def api_eda(
 @router.get("/eda/report", summary="Return or download the EDA HTML report")
 async def api_eda_report(
     current_user: CurrentUser,
-    upload_id: Optional[int] = Query(default=None),
+    upload_id: Optional[str] = Query(default=None),
     format: str = Query(default="html"),
     download: str = Query(default="0"),
 ):
@@ -441,7 +441,7 @@ async def api_data_report_generate(
     body: dict,
     current_user: CurrentUser,
     background_tasks: BackgroundTasks,
-    upload_id: Optional[int] = Query(default=None),
+    upload_id: Optional[str] = Query(default=None),
 ):
     target_upload_id = body.get("upload_id") or upload_id
     if not target_upload_id:
@@ -457,7 +457,7 @@ async def api_data_report_generate(
 @router.get("/reports/latest", summary="Get the latest generated HTML business report")
 async def api_reports_latest(
     current_user: CurrentUser,
-    upload_id: Optional[int] = Query(default=None),
+    upload_id: Optional[str] = Query(default=None),
 ):
     if not upload_id:
         raise HTTPException(400, "upload_id required")
@@ -474,7 +474,7 @@ async def api_reports_latest(
 @router.get("/data-report/download", summary="Download the business report as PDF or Printable Document")
 async def api_data_report_download(
     current_user: CurrentUser,
-    upload_id: Optional[int] = Query(default=None),
+    upload_id: Optional[str] = Query(default=None),
     print_pdf: Optional[bool] = Query(default=False, alias="print"),
 ):
     if not upload_id:
@@ -536,7 +536,7 @@ async def api_data_report_download(
 async def api_query(
     body: QueryRequest,
     current_user: CurrentUser,
-    upload_id: Optional[int] = Query(default=None),
+    upload_id: Optional[str] = Query(default=None),
 ):
     target_upload_id = body.upload_id or upload_id
     if not target_upload_id:
@@ -668,7 +668,7 @@ async def api_query(
 async def api_ai_consent(
     current_user: CurrentUser,
     body: Optional[AiConsentRequest] = None,
-    upload_id: Optional[int] = Query(default=None),
+    upload_id: Optional[str] = Query(default=None),
 ):
     target_upload_id = (body.upload_id if body else None) or upload_id
     consent_val = body.consent if body else True
@@ -711,7 +711,7 @@ async def api_chat_session_create(
 async def api_chat_session_delete(
     session_id: str,
     current_user: CurrentUser,
-    upload_id: Optional[int] = Query(default=None),
+    upload_id: Optional[str] = Query(default=None),
 ):
     if not upload_id:
         raise HTTPException(400, "upload_id required")
@@ -738,7 +738,7 @@ async def api_chat_session_delete(
 async def api_transform(
     body: TransformRequest,
     current_user: CurrentUser,
-    upload_id: Optional[int] = Query(default=None),
+    upload_id: Optional[str] = Query(default=None),
 ):
     target_upload_id = body.upload_id or upload_id
     if not target_upload_id:
@@ -772,7 +772,7 @@ async def api_transform(
 async def api_custom_chart(
     body: CustomChartRequest,
     current_user: CurrentUser,
-    upload_id: Optional[int] = Query(default=None),
+    upload_id: Optional[str] = Query(default=None),
 ):
     target_upload_id = body.upload_id or upload_id
     if not target_upload_id:
@@ -841,7 +841,7 @@ async def api_custom_chart(
 async def api_custom_chart_delete(
     body: CustomChartDeleteRequest,
     current_user: CurrentUser,
-    upload_id: Optional[int] = Query(default=None),
+    upload_id: Optional[str] = Query(default=None),
 ):
     target_upload_id = body.upload_id or upload_id
     if not target_upload_id:

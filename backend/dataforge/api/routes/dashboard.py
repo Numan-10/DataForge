@@ -268,7 +268,7 @@ def _compute_chart_data(df, config):
 async def api_dashboard_stats(
     body: DashboardStatsRequest,
     current_user: CurrentUser,
-    upload_id: Optional[int] = Query(default=None),
+    upload_id: Optional[str] = Query(default=None),
 ):
     target_upload_id = body.upload_id or upload_id
     if not target_upload_id:
@@ -435,7 +435,7 @@ async def api_dashboard_stats(
 async def api_drilldown(
     body: DrilldownRequest,
     current_user: CurrentUser,
-    upload_id: Optional[int] = Query(default=None),
+    upload_id: Optional[str] = Query(default=None),
 ):
     target_upload_id = body.upload_id or upload_id
     if not target_upload_id:
@@ -496,7 +496,7 @@ async def api_report_generate(
 @router.get("/reports/current", summary="Return the most recent report for an upload")
 async def api_report_current(
     current_user: CurrentUser,
-    upload_id: Optional[int] = Query(default=None),
+    upload_id: Optional[str] = Query(default=None),
     format: str = Query(default="html"),
 ):
     if not upload_id:
@@ -821,7 +821,7 @@ async def api_assets_label(
 async def api_dashboard_custom_chart(
     body: dict,
     current_user: CurrentUser,
-    upload_id: Optional[int] = Query(default=None),
+    upload_id: Optional[str] = Query(default=None),
 ):
     from dataforge.api.routes.workspace import api_custom_chart
     from dataforge.api.schemas.workspace import CustomChartRequest
@@ -840,7 +840,7 @@ async def api_dashboard_custom_chart(
 async def api_dashboard_custom_chart_delete(
     body: dict,
     current_user: CurrentUser,
-    upload_id: Optional[int] = Query(default=None),
+    upload_id: Optional[str] = Query(default=None),
 ):
     from dataforge.api.routes.workspace import api_custom_chart_delete
     from dataforge.api.schemas.workspace import CustomChartDeleteRequest

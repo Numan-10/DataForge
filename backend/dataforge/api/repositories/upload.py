@@ -11,7 +11,7 @@ from dataforge.db import db_get, db_first, db_all, db_insert, db_update, db_dele
 
 class UploadRepository:
 
-    def get_by_id(self, upload_id: int) -> Optional[dict]:
+    def get_by_id(self, upload_id: str) -> Optional[dict]:
         return db_get("uploads", upload_id)
 
     def list_for_user(self, user_id: int, limit: int = 50) -> list[dict]:
@@ -40,10 +40,10 @@ class UploadRepository:
         res = db_insert("uploads", data)
         return res if res else None
 
-    def update(self, upload_id: int, data: dict) -> Optional[dict]:
+    def update(self, upload_id: str, data: dict) -> Optional[dict]:
         return db_update("uploads", upload_id, data) or None
 
-    def delete(self, upload_id: int) -> bool:
+    def delete(self, upload_id: str) -> bool:
         return db_delete("uploads", upload_id)
 
     def count_for_user(self, user_id: int) -> int:
@@ -63,7 +63,7 @@ class UploadRepository:
         except Exception:
             return []
 
-    def log_analysis(self, user_id: int, upload_id: Optional[int], type_: str, summary: str = "") -> Optional[dict]:
+    def log_analysis(self, user_id: int, upload_id: Optional[str], type_: str, summary: str = "") -> Optional[dict]:
         data = {"user_id": user_id, "upload_id": upload_id, "type": type_, "summary": summary}
         res = db_insert("analyses", data)
         return res if res else None

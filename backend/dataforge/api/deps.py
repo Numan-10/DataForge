@@ -64,7 +64,7 @@ CurrentUser = Annotated[User, Depends(get_current_user)]
 
 async def get_upload_id(
     request: Request,
-    upload_id: Optional[int] = Query(default=None),
+    upload_id: Optional[str] = Query(default=None),
 ) -> Optional[int]:
     """
     Extract upload_id from query string, JSON body, or form data.
@@ -93,7 +93,7 @@ async def get_upload_id(
 
 
 async def require_upload_access(
-    upload_id: int,
+    upload_id: str,
     current_user: User,
 ) -> dict:
     """
@@ -110,7 +110,7 @@ async def require_upload_access(
 
 
 async def require_upload_with_data(
-    upload_id: int,
+    upload_id: str,
     current_user: User,
 ) -> dict:
     """

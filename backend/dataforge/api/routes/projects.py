@@ -52,7 +52,7 @@ async def api_projects(current_user: CurrentUser):
 @router.post("/restore/{upload_id}", summary="Restore a project dataset from Supabase Storage")
 async def api_restore(
     current_user: CurrentUser,
-    upload_id: int = Path(...),
+    upload_id: str = Path(...),
 ):
     up = db_get("uploads", upload_id)
     if not up or up.get("user_id") != current_user.id:
@@ -88,7 +88,7 @@ async def api_restore(
 @router.delete("/delete/{upload_id}", summary="Delete a project and all its data")
 async def api_delete(
     current_user: CurrentUser,
-    upload_id: int = Path(...),
+    upload_id: str = Path(...),
 ):
     up = db_get("uploads", upload_id)
     if not up or up.get("user_id") != current_user.id:

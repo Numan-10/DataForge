@@ -47,7 +47,7 @@ class ConnectionManager:
 
     # ── Connection lifecycle ──────────────────────────────────────────────────
 
-    async def connect(self, websocket: WebSocket, user_id: int, upload_id: Optional[int] = None):
+    async def connect(self, websocket: WebSocket, user_id: int, upload_id: Optional[str] = None):
         """Accept a new WebSocket connection for user_id."""
         await websocket.accept()
         async with self._lock:
@@ -56,7 +56,7 @@ class ConnectionManager:
                 self._upload_watchers[upload_id].add(user_id)
         log.info("WS connect: user_id=%s tabs=%d", user_id, len(self._user_connections[user_id]))
 
-    async def disconnect(self, websocket: WebSocket, user_id: int, upload_id: Optional[int] = None):
+    async def disconnect(self, websocket: WebSocket, user_id: int, upload_id: Optional[str] = None):
         """Remove a WebSocket connection."""
         async with self._lock:
             self._user_connections[user_id].discard(websocket)
@@ -91,7 +91,7 @@ class ConnectionManager:
                 for ws in dead:
                     self._user_connections[user_id].discard(ws)
 
-    async def broadcast_to_workspace(self, upload_id: int, event: str, data: dict):
+    async def broadcast_to_workspace(self, upload_id: str, event: str, data: dict):
         """Push an event to all users currently watching an upload (workspace)."""
         watchers = set(self._upload_watchers.get(upload_id, set()))
         for user_id in watchers:

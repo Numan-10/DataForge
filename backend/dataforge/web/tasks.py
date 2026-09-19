@@ -109,7 +109,7 @@ def _job_fail(task_id: str, error: str):
 # ══════════════════════════════════════════════════════════════════════════════
 
 @celery.task(bind=True, name="tasks.run_insights", max_retries=2)
-def task_run_insights(self, upload_id: int, user_id: int,
+def task_run_insights(self, upload_id: str, user_id: int,
                       top_n: int = 6, use_gemini: bool = True):
     from dataforge.insight_engine import detect_schema, run_insights, summarise_with_gemini
     from dataforge.gemini_pipeline import is_available as gemini_available
@@ -202,7 +202,7 @@ def task_run_insights(self, upload_id: int, user_id: int,
 # ══════════════════════════════════════════════════════════════════════════════
 
 @celery.task(bind=True, name="tasks.run_automl", max_retries=0)
-def task_run_automl(self, upload_id: int, user_id: int,
+def task_run_automl(self, upload_id: str, user_id: int,
                     target_col: str, task_choice: str = "auto-detect",
                     time_budget: int = 60, test_size: float = 0.2):
     from dataforge.automl_trainer import run_automl
@@ -280,7 +280,7 @@ def task_run_automl(self, upload_id: int, user_id: int,
 # ══════════════════════════════════════════════════════════════════════════════
 
 @celery.task(bind=True, name="tasks.run_eda", max_retries=1)
-def task_run_eda(self, upload_id: int, user_id: int,
+def task_run_eda(self, upload_id: str, user_id: int,
                   minimal: bool = True, sample_n: int = 5000):
     from dataforge.eda_report import generate_eda_report
 
@@ -330,7 +330,7 @@ def task_run_eda(self, upload_id: int, user_id: int,
 # ══════════════════════════════════════════════════════════════════════════════
 
 @celery.task(bind=True, name="tasks.generate_report", max_retries=1)
-def task_generate_report(self, upload_id: int, user_id: int):
+def task_generate_report(self, upload_id: str, user_id: int):
     from dataforge.insight_engine  import detect_schema, run_insights
     from dataforge.report_generator import generate_html_report
 
@@ -515,7 +515,7 @@ Format your output EXACTLY as follows:
 # ══════════════════════════════════════════════════════════════════════════════
 
 @celery.task(bind=True, name="tasks.check_alerts", max_retries=2)
-def task_check_alerts(self, upload_id: int, user_id: int):
+def task_check_alerts(self, upload_id: str, user_id: int):
     from dataforge.alert_engine  import AlertEngine
     from dataforge.insight_engine import detect_schema
 

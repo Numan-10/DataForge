@@ -30,7 +30,7 @@ async def api_insights_run(
     current_user: CurrentUser,
     background_tasks: BackgroundTasks,
     job_manager: JobManager = Depends(get_job_manager_dep),
-    upload_id: Optional[int] = Query(default=None),
+    upload_id: Optional[str] = Query(default=None),
 ):
     target_upload_id = body.upload_id or upload_id
     if not target_upload_id:
@@ -44,7 +44,7 @@ async def api_insights_run(
 @router.get("/insights/list", summary="List saved insight records for an upload")
 async def api_insights_list(
     current_user: CurrentUser,
-    upload_id: Optional[int] = Query(default=None),
+    upload_id: Optional[str] = Query(default=None),
 ):
     if upload_id is None:
         raise HTTPException(400, "upload_id required")
@@ -71,7 +71,7 @@ async def api_insights_list(
 @router.get("/insights/current", summary="Return the latest cached insight results")
 async def api_insights_current(
     current_user: CurrentUser,
-    upload_id: Optional[int] = Query(default=None),
+    upload_id: Optional[str] = Query(default=None),
 ):
     if upload_id is None:
         raise HTTPException(400, "upload_id required")
@@ -92,7 +92,7 @@ async def api_insights_current(
 async def api_root_cause(
     body: RootCauseRequest,
     current_user: CurrentUser,
-    upload_id: Optional[int] = Query(default=None),
+    upload_id: Optional[str] = Query(default=None),
 ):
     target_upload_id = body.upload_id or upload_id
     if not target_upload_id:

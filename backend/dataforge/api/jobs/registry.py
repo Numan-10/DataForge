@@ -30,7 +30,7 @@ def _now_iso() -> str:
 
 async def create_job(
     user_id: int,
-    upload_id: Optional[int],
+    upload_id: Optional[str],
     job_type: str,
     job_id: Optional[str] = None,
 ) -> str:
@@ -139,7 +139,7 @@ def get_jobs_for_user(user_id: int, limit: int = 20) -> list[dict]:
     return user_jobs[:limit]
 
 
-def get_active_job(upload_id: int, job_type: str) -> Optional[dict]:
+def get_active_job(upload_id: str, job_type: str) -> Optional[dict]:
     """Return an active (queued/started) job for an upload, if any."""
     for j in _jobs.values():
         if (j.get("upload_id") == upload_id
